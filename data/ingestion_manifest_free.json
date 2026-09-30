@@ -2,271 +2,276 @@
   "data/sample_docs/Acceptable_Use_Policy.pdf": {
     "hash": "9db340675204483631d24bdd01a4d452995fa362548127eb7cda6b7a86d66bc5",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:49.392118"
+    "last_ingested": "2026-09-25T17:04:33.773931"
   },
   "data/sample_docs/BYOD_Policy.pdf": {
     "hash": "9555e51b49cfc9e81122957aee903d592da42da3118b11e751dcc38f483fc100",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:49.567966"
+    "last_ingested": "2026-09-25T17:04:33.935057"
   },
   "data/sample_docs/Client_Onboarding_SOP.pdf": {
     "hash": "f23bc7d01b31e2e3a42a2cf65802c9f47e9997ae713e9708dfd8a2bb03ae594f",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:49.716183"
+    "last_ingested": "2026-09-25T17:04:34.136096"
   },
   "data/sample_docs/Cloud_Storage_File_Sharing_Guidelines.pdf": {
     "hash": "e6442cad647e3f01ca3b190c08b331b500b1032933b90197746e2e7b24751ea1",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:49.749136"
+    "last_ingested": "2026-09-25T17:04:34.209556"
   },
   "data/sample_docs/Company_Townhall_Summary_Notes.pdf": {
     "hash": "e8a59b63a8ee42c4be9e82f02db1b6cb8d44e5ce704708bc2e070d9816c51667",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:49.789070"
+    "last_ingested": "2026-09-25T17:04:34.233330"
   },
   "data/sample_docs/Compliance_Anti_Harassment_Policy.pdf": {
     "hash": "a85dcdb2784f828917c638f0d321e9bfca317bd7b48ee49807ef697cb9465e2e",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:50.002063"
+    "last_ingested": "2026-09-25T17:04:34.400015"
   },
   "data/sample_docs/Compliance_Data_Privacy_Policy.pdf": {
     "hash": "e9c22e783d7618e6378d3a6f167b2b20386231a388b1ccf8a8baf239a4ae1ae0",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:50.128198"
+    "last_ingested": "2026-09-25T17:04:34.461933"
   },
   "data/sample_docs/Compliance_Records_Retention_Policy.pdf": {
     "hash": "22f28a6781254f836bd612df52e9b51c975fcace8c08e30c51668f44241b357c",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:50.159971"
+    "last_ingested": "2026-09-25T17:04:34.483371"
   },
   "data/sample_docs/Employee_FAQ_Document.pdf": {
     "hash": "b3f78b87d9fe1a715bc190dd7ae24f45ff77d35456d98b6e64a863f1faee4190",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:50.307775"
+    "last_ingested": "2026-09-25T17:04:34.558058"
   },
   "data/sample_docs/Employee_Onboarding_SOP.pptx": {
     "hash": "760f218f9326cdab8cc7cfb4ab8a37cde7ac84a259c6a1d5d390dda5d5740705",
     "chunk_count": 8,
-    "last_ingested": "2026-08-23T09:30:50.526866"
+    "last_ingested": "2026-09-25T17:04:36.199516"
   },
   "data/sample_docs/Employee_Referral_Program_Policy.pdf": {
     "hash": "886d0a7d124f34357974331c80ce2fbdcd45f894cfdbaa0500403dcbfd81d51d",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:50.571307"
+    "last_ingested": "2026-09-25T17:04:36.228159"
   },
   "data/sample_docs/Finance_Procurement_SOP.pdf": {
     "hash": "b315bf4dab762ba79f097ef04b403cfd6fb33b083f016190be86ca4ff664e957",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:50.601162"
+    "last_ingested": "2026-09-25T17:04:36.248381"
   },
   "data/sample_docs/Finance_Q3_Budget_Report.pptx": {
     "hash": "a5147c6bc30c0812605e8108f214bca829338fb164da2fc5c2b67b26c066f466",
     "chunk_count": 10,
-    "last_ingested": "2026-08-23T09:59:05.423686"
+    "last_ingested": "2026-09-25T17:04:36.340859"
   },
   "data/sample_docs/Finance_Travel_Expense_Reimbursement_Policy.pdf": {
     "hash": "672bb006c0982aa277f6172eaaf90d423afcb62d1c5746ce77f9080ca5001f71",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:50.828081"
+    "last_ingested": "2026-09-25T17:04:36.407723"
   },
   "data/sample_docs/Global_Employee_Handbook.pdf": {
     "hash": "475e738747965e005496906b3dbac2c11ebe1b7bc4cb6ddd1a9c3c1e56e74db2",
     "chunk_count": 62,
-    "last_ingested": "2026-08-23T09:30:51.228700"
+    "last_ingested": "2026-09-25T17:04:36.705636"
   },
   "data/sample_docs/HR_Code_of_Conduct.pdf": {
     "hash": "89e690ec4218e775727f9f1a512c49510b113e58148fc065b48dcd91f777f1cc",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:51.316997"
+    "last_ingested": "2026-09-25T17:04:36.727124"
   },
   "data/sample_docs/HR_Employee_Benefits_Guide.pdf": {
     "hash": "f77ac399c8fdc342ac5e30aa2a5414ca7dd2aa371dc6aaa7c416204f8a25ca20",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:51.346224"
+    "last_ingested": "2026-09-25T17:04:36.746758"
   },
   "data/sample_docs/HR_Leave_Policy.pdf": {
     "hash": "9e1f543f8232897ebb8e18d9b5b9cece8506bb688ab39f12726f8c56f7923408",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:51.382918"
+    "last_ingested": "2026-09-25T17:04:36.773760"
   },
   "data/sample_docs/HR_Performance_Review_SOP.docx": {
     "hash": "021676f854929e8364d993ffc35a4b69a5bfaedec1c172a09167d0cdb39283e1",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.438344"
+    "last_ingested": "2026-09-25T17:04:36.809627"
   },
   "data/sample_docs/HR_Remote_Work_Policy_v2.docx": {
     "hash": "a9e44a4cd644390792f239381e1b36e1a4440d6855f174a9e1728c82f189f947",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.470355"
+    "last_ingested": "2026-09-25T17:04:36.831638"
   },
   "data/sample_docs/IT_Data_Backup_Recovery_Guide.docx": {
     "hash": "2735d5bd74b429c84c43ae39fe45e1924e5fa4af2b9bab7eb749998061aebb3d",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.505795"
+    "last_ingested": "2026-09-25T17:04:36.854368"
   },
   "data/sample_docs/IT_Incident_Response_Runbook.docx": {
     "hash": "459fb60d93cb3f2788ea394906f709aade279ccc2dff0bedabe353b64f3626bd",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:51.541685"
+    "last_ingested": "2026-09-25T17:04:36.877814"
   },
   "data/sample_docs/IT_Maintenance_Downtime_Notice.pdf": {
     "hash": "1370b1abf893feaa7acc4956a65f0b072599689079f4f76e9ca3dd95be904a94",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:51.567509"
+    "last_ingested": "2026-09-25T17:04:36.899273"
+  },
+  "data/sample_docs/IT_Password_Security_Policy_v1.pdf": {
+    "hash": "bdb652aa9a352c024c40429c099076dd654ed2d979c7a53a4cb8effa47db54f4",
+    "chunk_count": 4,
+    "last_ingested": "2026-09-25T17:04:36.925393"
   },
   "data/sample_docs/IT_Password_Security_Policy_v2.pdf": {
     "hash": "30b6c453c410c35917c6f56fcd5bade7eb4f3fb9924d5829f3b1e7b895377a32",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:51.649992"
+    "last_ingested": "2026-09-25T17:04:36.954157"
   },
   "data/sample_docs/IT_Software_Request_SOP.docx": {
     "hash": "b121cebe2793dbc6aaa55d57c8eb855f9ccf046a7b6553c443f81581a2f6aef3",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.675086"
+    "last_ingested": "2026-09-25T17:04:36.973788"
   },
   "data/sample_docs/IT_Support_Service_Catalog.pdf": {
     "hash": "29b80d97e6375a6ba5ae883425c49362110ab9c2692a3cd6b4f01e533a532b0e",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.715412"
+    "last_ingested": "2026-09-25T17:04:37.004731"
   },
   "data/sample_docs/IT_VPN_Support_Guide.docx": {
     "hash": "741ab0e148c0befbb813cd5bc696dde904e3fc4063c0dfbba95de919e32cf932",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:51.761415"
+    "last_ingested": "2026-09-25T17:04:37.029889"
   },
   "data/sample_docs/Information_Security_Awareness_Training.pptx": {
     "hash": "cc7e1a83e5fc818b1a1aa8974cc48ab281d394ad82c0a797b1de87cc67491e4a",
     "chunk_count": 6,
-    "last_ingested": "2026-08-23T09:30:51.795357"
+    "last_ingested": "2026-09-25T17:04:37.122657"
   },
   "data/sample_docs/Lessons_Learned_Report_Project_Closure.docx": {
     "hash": "af6bbf5d165f6cb9e3afe79897cb767f7124bbbd2fe77463bd729bdab606cfc1",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:51.839193"
+    "last_ingested": "2026-09-25T17:04:37.213675"
   },
   "data/sample_docs/New_Office_Opening_Announcement.pdf": {
     "hash": "ce67f446f5b33184c3777058adcacb69197ef848870910154e57f327b5bf0e8c",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:51.877516"
+    "last_ingested": "2026-09-25T17:04:37.239325"
   },
   "data/sample_docs/Nova_CRM_Product_Overview_Deck.pptx": {
     "hash": "8580e6057138d7fe4d58e712439d7c308bf90a7b2e00d4d11541cb6add363c25",
     "chunk_count": 5,
-    "last_ingested": "2026-08-23T09:30:51.975791"
+    "last_ingested": "2026-09-25T17:04:37.336165"
   },
   "data/sample_docs/Ops_Business_Continuity_Plan.docx": {
     "hash": "4517f41a784a0ef341ca51246b8a45ef55eebc9af09b1a089e47230e51ce04ca",
     "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:52.032254"
+    "last_ingested": "2026-09-25T17:04:37.362831"
   },
   "data/sample_docs/Ops_Facilities_Access_Policy.docx": {
     "hash": "005209da544bb14cdb8965ec90b857c13261bf557dabf2e4b1f30abbd52f77bb",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:52.078369"
+    "last_ingested": "2026-09-25T17:04:37.387602"
   },
   "data/sample_docs/Ops_Product_Launch_Retrospective.pptx": {
     "hash": "e1569362a5a64108e4673ab0aa107c46c1e4694402371226c9e75894ec2db515",
     "chunk_count": 7,
-    "last_ingested": "2026-08-23T09:30:52.195536"
+    "last_ingested": "2026-09-25T17:04:37.481595"
   },
   "data/sample_docs/Ops_Vendor_Management_SOP.docx": {
     "hash": "45b8798813425997a6b8af8be41e8d30640f4764d493c24b2ff1e16736ba7981",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:52.240714"
+    "last_ingested": "2026-09-25T17:04:37.510405"
   },
   "data/sample_docs/Policy_Update_Memo.pdf": {
     "hash": "2823dc1e292c0848cec112fdfd807ac482398ea92f5c2d5bb6852cd9259a4723",
     "chunk_count": 2,
-    "last_ingested": "2026-08-23T09:30:52.275726"
+    "last_ingested": "2026-09-25T17:04:37.533680"
   },
   "data/sample_docs/Post_Implementation_Review_Client_Project.docx": {
     "hash": "5d0041abbfdfbb4c3bc09dd248712c30d0ba1848a84ce7e29e60cd0ba0757860",
     "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:52.332097"
-  },
-  "data/sample_docs/Root_Cause_Analysis_Report_Production_Incident.docx": {
-    "hash": "af41159393ff5bbfbfe7294bd67bfbb07893a87adba3ac419d406ce10500e4bc",
-    "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:52.390557"
-  },
-  "data/sample_docs/Sales_Onboarding_Playbook.pptx": {
-    "hash": "da4491bd472e207b6c336ae2429d5a7b957d435ebe083bdd3931946b07a15322",
-    "chunk_count": 6,
-    "last_ingested": "2026-08-23T09:30:52.424489"
-  },
-  "data/sample_docs/Technical_Architecture_Document_Nova_CRM_v2.docx": {
-    "hash": "3e5e6a0b7f5cb33e863cc4417de8a791ecabe8f4a39923fb696adb8ea5eba053",
-    "chunk_count": 4,
-    "last_ingested": "2026-08-23T09:30:52.483276"
-  },
-  "data/sample_docs/Training_Customer_Support_Training_Manual.pptx": {
-    "hash": "fd93c8b0f5b9a192d118f9e2dd01f4ec6ab1d973f752dac35f2810c39370d0fe",
-    "chunk_count": 8,
-    "last_ingested": "2026-08-23T09:30:52.529074"
-  },
-  "data/sample_docs/Training_New_Manager_Training_Manual.pptx": {
-    "hash": "8c6ceb754c71022f42b464f553830fa641c6181a140a3bff085cd27b9ca9ac68",
-    "chunk_count": 8,
-    "last_ingested": "2026-08-23T09:30:52.575049"
-  },
-  "data/sample_docs/Vendor_Onboarding_SOP.pdf": {
-    "hash": "0e0a954d649880509e8355d5776c254b5d848761f99a10ab71cdaefed58ea631",
-    "chunk_count": 3,
-    "last_ingested": "2026-08-23T09:30:52.620761"
-  },
-  "data/external_enterpriserag_bench/dsid_00908a2dda4b4d359194a091019e8367__role-certification-and-peer-shadow-rotation-handbook-2026.txt": {
-    "hash": "bde6d70cbb0fd34594d0071ac1da99a7463d4ee5587ff949d1f266bdb4a1676c",
-    "chunk_count": 15,
-    "last_ingested": "2026-08-23T09:59:21.299356"
-  },
-  "data/external_enterpriserag_bench/dsid_00d096099cd54f709b2ccce99c994ee4__sdk-backcompat-deprecation-playbook-2026.txt": {
-    "hash": "d9dec1b2dcf01b0ecffb8297cc3a0cda01d8b448db2d3275d7bb8a7458e96899",
-    "chunk_count": 17,
-    "last_ingested": "2026-08-23T09:59:21.468417"
-  },
-  "data/external_enterpriserag_bench/dsid_0664b7ad565f4939b6db7c47ed5d4ff0__evidence-and-escalation-curriculum-for-oncall-operators-2026.txt": {
-    "hash": "353eacafb2f3ca7112350a2e15aacafeb62b35c372261f13aea60c7c1948345c",
-    "chunk_count": 18,
-    "last_ingested": "2026-08-23T09:59:21.590343"
-  },
-  "data/external_enterpriserag_bench/dsid_0d9cae83ac4945cbb33e9dfd9f8bf6eb__escalation-paths-and-contacts-2026.txt": {
-    "hash": "8cea431c397230bea2c7791d93fd77c0f12167b9440625082457494550a8044f",
-    "chunk_count": 20,
-    "last_ingested": "2026-08-23T09:59:21.708566"
-  },
-  "data/external_enterpriserag_bench/dsid_11b4dc5c498c472b9827a245f5a0720e__equitable-onboarding-and-role-access-playbook-2028.txt": {
-    "hash": "6196cca1e059f976b206f8932d5b0c1a13d902ce35a5176bfad6f6e36af913d1",
-    "chunk_count": 13,
-    "last_ingested": "2026-08-23T09:59:21.875745"
-  },
-  "data/external_enterpriserag_bench/dsid_1a22e40be91e44b8ab29d0f0ad0475a6__gpu-preemption-hedging-and-billing-reconciliation-playbook.txt": {
-    "hash": "5d36e63f4d373714f8c229f889579257902b79f272e0be1a0df462f726d00440",
-    "chunk_count": 20,
-    "last_ingested": "2026-08-23T09:59:21.992456"
-  },
-  "data/external_enterpriserag_bench/dsid_238ce35e39204117a85b6ddb49d80c7b__network-partition-tolerance-local-fallback-playbook-2028.txt": {
-    "hash": "eb38e824903ae99732e472b85af147d2a615b9ebafac4ea70a429ce8df870788",
-    "chunk_count": 16,
-    "last_ingested": "2026-08-23T09:59:22.103882"
-  },
-  "data/external_enterpriserag_bench/dsid_37db737f77a6446883ddf996621ff64f__ops-ecosystem-handbook-2026.txt": {
-    "hash": "4dd8d55827617b70b396c5cfef9c0c2737e194ea295c15160b573ea181711d3c",
-    "chunk_count": 23,
-    "last_ingested": "2026-08-23T09:59:22.236112"
-  },
-  "data/external_enterpriserag_bench/dsid_3baaea951b3941d596ed21be946c5075__major-cloud-provider-outage-customer-communication-and-remediation-playbook-2025.txt": {
-    "hash": "51ce9f83e0d21b77240b83451b8eb66dafa0ed88dfe55a52f4862dcbc6d363e8",
-    "chunk_count": 17,
-    "last_ingested": "2026-08-23T09:59:22.345696"
-  },
-  "data/external_enterpriserag_bench/dsid_92bc3577d2624a9cb294ab827ae60131__onboarding-escalation-and-triage-playbook.txt": {
-    "hash": "f94f4eb1157175b33e47004f5cbf09b00bf666a01ad363a7f21d9526bf3342bf",
-    "chunk_count": 22,
-    "last_ingested": "2026-08-23T09:59:22.480453"
+    "last_ingested": "2026-09-25T17:04:37.565064"
   },
   "data/sample_docs/Q3_FY2026_Financial_Report.pdf": {
     "hash": "ff8265facc3f93e3f8521aed17ea7749473879bf5f8fcb4c92bb3d854cb133df",
     "chunk_count": 2,
-    "last_ingested": "2026-09-18T18:11:46.951105"
+    "last_ingested": "2026-09-25T17:04:37.586827"
+  },
+  "data/sample_docs/Root_Cause_Analysis_Report_Production_Incident.docx": {
+    "hash": "af41159393ff5bbfbfe7294bd67bfbb07893a87adba3ac419d406ce10500e4bc",
+    "chunk_count": 4,
+    "last_ingested": "2026-09-25T17:04:37.613956"
+  },
+  "data/sample_docs/Sales_Onboarding_Playbook.pptx": {
+    "hash": "da4491bd472e207b6c336ae2429d5a7b957d435ebe083bdd3931946b07a15322",
+    "chunk_count": 6,
+    "last_ingested": "2026-09-25T17:04:37.637866"
+  },
+  "data/sample_docs/Technical_Architecture_Document_Nova_CRM_v2.docx": {
+    "hash": "3e5e6a0b7f5cb33e863cc4417de8a791ecabe8f4a39923fb696adb8ea5eba053",
+    "chunk_count": 4,
+    "last_ingested": "2026-09-25T17:04:37.664611"
+  },
+  "data/sample_docs/Training_Customer_Support_Training_Manual.pptx": {
+    "hash": "fd93c8b0f5b9a192d118f9e2dd01f4ec6ab1d973f752dac35f2810c39370d0fe",
+    "chunk_count": 8,
+    "last_ingested": "2026-09-25T17:04:37.696622"
+  },
+  "data/sample_docs/Training_New_Manager_Training_Manual.pptx": {
+    "hash": "8c6ceb754c71022f42b464f553830fa641c6181a140a3bff085cd27b9ca9ac68",
+    "chunk_count": 8,
+    "last_ingested": "2026-09-25T17:04:37.778265"
+  },
+  "data/sample_docs/Vendor_Onboarding_SOP.pdf": {
+    "hash": "0e0a954d649880509e8355d5776c254b5d848761f99a10ab71cdaefed58ea631",
+    "chunk_count": 3,
+    "last_ingested": "2026-09-25T17:04:37.810304"
+  },
+  "data/external_enterpriserag_bench/dsid_00908a2dda4b4d359194a091019e8367__role-certification-and-peer-shadow-rotation-handbook-2026.txt": {
+    "hash": "bde6d70cbb0fd34594d0071ac1da99a7463d4ee5587ff949d1f266bdb4a1676c",
+    "chunk_count": 15,
+    "last_ingested": "2026-09-25T17:05:00.382143"
+  },
+  "data/external_enterpriserag_bench/dsid_00d096099cd54f709b2ccce99c994ee4__sdk-backcompat-deprecation-playbook-2026.txt": {
+    "hash": "d9dec1b2dcf01b0ecffb8297cc3a0cda01d8b448db2d3275d7bb8a7458e96899",
+    "chunk_count": 17,
+    "last_ingested": "2026-09-25T17:05:00.431207"
+  },
+  "data/external_enterpriserag_bench/dsid_0664b7ad565f4939b6db7c47ed5d4ff0__evidence-and-escalation-curriculum-for-oncall-operators-2026.txt": {
+    "hash": "353eacafb2f3ca7112350a2e15aacafeb62b35c372261f13aea60c7c1948345c",
+    "chunk_count": 18,
+    "last_ingested": "2026-09-25T17:05:00.477715"
+  },
+  "data/external_enterpriserag_bench/dsid_0d9cae83ac4945cbb33e9dfd9f8bf6eb__escalation-paths-and-contacts-2026.txt": {
+    "hash": "8cea431c397230bea2c7791d93fd77c0f12167b9440625082457494550a8044f",
+    "chunk_count": 20,
+    "last_ingested": "2026-09-25T17:05:00.527900"
+  },
+  "data/external_enterpriserag_bench/dsid_11b4dc5c498c472b9827a245f5a0720e__equitable-onboarding-and-role-access-playbook-2028.txt": {
+    "hash": "6196cca1e059f976b206f8932d5b0c1a13d902ce35a5176bfad6f6e36af913d1",
+    "chunk_count": 13,
+    "last_ingested": "2026-09-25T17:05:00.609513"
+  },
+  "data/external_enterpriserag_bench/dsid_1a22e40be91e44b8ab29d0f0ad0475a6__gpu-preemption-hedging-and-billing-reconciliation-playbook.txt": {
+    "hash": "5d36e63f4d373714f8c229f889579257902b79f272e0be1a0df462f726d00440",
+    "chunk_count": 20,
+    "last_ingested": "2026-09-25T17:05:00.664005"
+  },
+  "data/external_enterpriserag_bench/dsid_238ce35e39204117a85b6ddb49d80c7b__network-partition-tolerance-local-fallback-playbook-2028.txt": {
+    "hash": "eb38e824903ae99732e472b85af147d2a615b9ebafac4ea70a429ce8df870788",
+    "chunk_count": 16,
+    "last_ingested": "2026-09-25T17:05:00.705302"
+  },
+  "data/external_enterpriserag_bench/dsid_37db737f77a6446883ddf996621ff64f__ops-ecosystem-handbook-2026.txt": {
+    "hash": "4dd8d55827617b70b396c5cfef9c0c2737e194ea295c15160b573ea181711d3c",
+    "chunk_count": 23,
+    "last_ingested": "2026-09-25T17:05:00.762010"
+  },
+  "data/external_enterpriserag_bench/dsid_3baaea951b3941d596ed21be946c5075__major-cloud-provider-outage-customer-communication-and-remediation-playbook-2025.txt": {
+    "hash": "51ce9f83e0d21b77240b83451b8eb66dafa0ed88dfe55a52f4862dcbc6d363e8",
+    "chunk_count": 17,
+    "last_ingested": "2026-09-25T17:05:00.805038"
+  },
+  "data/external_enterpriserag_bench/dsid_92bc3577d2624a9cb294ab827ae60131__onboarding-escalation-and-triage-playbook.txt": {
+    "hash": "f94f4eb1157175b33e47004f5cbf09b00bf666a01ad363a7f21d9526bf3342bf",
+    "chunk_count": 22,
+    "last_ingested": "2026-09-25T17:05:00.916189"
   }
 }

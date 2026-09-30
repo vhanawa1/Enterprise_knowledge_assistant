@@ -1,5 +1,50 @@
 # Enterprise_knowledge_assistant
 
+A Retrieval-Augmented Generation (RAG) assistant that answers questions over your
+organization's documents, with citations and calibrated confidence. It offers two
+answering strategies: a fast **single-shot** RAG and a **ReAct agent** that reformulates
+and searches multiple times — and will *offer to escalate* to ReAct when a single-shot
+answer comes back weak.
+
+## Quick start (run it with your own API key)
+
+```bash
+# 1. Clone and enter the repo
+git clone git@github.com:kpareek/Enterprise_knowledge_assistant.git
+cd Enterprise_knowledge_assistant
+
+# 2. Create a virtual environment and install dependencies
+python3 -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# 3. Add YOUR OWN key (never commit .env — it's git-ignored)
+cp .env.example .env
+#   then edit .env:
+#   - Easiest / free:  RAG_MODE=free  + a free OpenRouter key (https://openrouter.ai/keys)
+#   - Paid (OpenAI):   RAG_MODE=paid  + your OPENAI_API_KEY (https://platform.openai.com/api-keys)
+#   See .env.example for both paths and a note on free-tier daily request caps.
+
+# 4. Build the vector index from the sample documents
+python -m ingestion.ingest
+
+# 5. Run the assistant (chat UI on http://localhost:8501)
+streamlit run app.py
+```
+
+**Optional — evaluation & report:**
+```bash
+python -m eval.evaluate                 # score the single-shot pipeline
+python -m eval.evaluate --strategy react # score the ReAct agent
+streamlit run eval/dashboard.py          # visualize results (port 8502)
+python eval/build_report_html.py         # render SUMMARY/EVALUATION_REPORT to shareable HTML
+```
+
+> **Note on free tier:** OpenRouter's `:free` models share an account-wide daily request cap
+> (~50/day without credit). A full 28-question eval needs ~200 requests, so either add a small
+> OpenRouter/OpenAI balance or spread eval runs across days. The chat UI itself is fine on free.
+
+________________________________________
 Project File Guide — Enterprise Knowledge Assistant
 A folder-by-folder, file-by-file reference for everyone on the team working with this codebase. For deeper design rationale, see docs/architecture.md; for setup instructions, see docs/deployment_guide.md.
 ________________________________________

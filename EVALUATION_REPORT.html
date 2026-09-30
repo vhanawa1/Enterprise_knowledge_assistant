@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation Report — Enterprise Knowledge Assistant</title><style>
+:root { --ink:#1a2233; --muted:#5b6472; --line:#e3e8ef; --accent:#2f5fe0;
+        --accent-soft:#eef3ff; --ok:#0f7b3f; --warn:#b26a00; --code:#0b1f4d; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+       color: var(--ink); line-height: 1.55; max-width: 880px; margin: 0 auto;
+       padding: 56px 48px 80px; font-size: 15px; background:#fff; }
+h1 { font-size: 30px; letter-spacing:-.5px; margin: 0 0 4px; padding-bottom: 14px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 21px; margin: 38px 0 12px; padding-top: 10px; color: var(--ink);
+     border-top: 1px solid var(--line); padding-top: 22px; }
+h3 { font-size: 16.5px; margin: 26px 0 8px; color: var(--accent); }
+h4 { font-size: 14px; margin: 18px 0 6px; color: var(--muted); text-transform: uppercase;
+     letter-spacing:.4px; }
+p, li { color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+strong { color: var(--ink); }
+code { background:#f4f6fa; color: var(--code); padding: 1.5px 5px; border-radius: 4px;
+       font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+pre { background:#0f1729; color:#e6ebff; padding: 14px 16px; border-radius: 8px;
+      overflow-x:auto; font-size: 12.5px; line-height:1.5; }
+pre code { background: none; color: inherit; padding: 0; }
+blockquote { margin: 12px 0; padding: 10px 16px; background: var(--accent-soft);
+             border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; color: var(--ink); }
+blockquote p { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0 20px; font-size: 13.5px;
+        box-shadow: 0 1px 0 var(--line); }
+th { background: var(--ink); color:#fff; text-align: left; padding: 9px 12px; font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background:#f8fafc; }
+hr { border:none; border-top: 1px solid var(--line); margin: 30px 0; }
+em { color: var(--muted); }
+.doc-meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+@media print {
+  body { padding: 0; font-size: 11.5pt; max-width: none; }
+  h2 { page-break-after: avoid; } table, pre, blockquote { page-break-inside: avoid; }
+  a { color: var(--ink); }
+}
+</style></head>
+<body><h1 id="enterprise-knowledge-assistant-evaluation-report">Enterprise Knowledge Assistant — Evaluation Report</h1>
+<p><strong>Prepared for:</strong> team review
+<strong>Scope:</strong> (A) Free vs. Paid model comparison, (B) ReAct agent vs. the existing single-shot RAG agent
+<strong>Date:</strong> 2026-09-26</p>
+<blockquote>
+<p><strong>How to read this report.</strong> Two very different kinds of evidence appear below, and they are
+labelled throughout:
+- <strong>✅ Measured</strong> — numbers produced by our evaluation harness on the 22-question test set. These are real.
+- <strong>🔷 Design / Expected</strong> — architectural analysis plus one fully-worked, verified example. The
+  ReAct agent's <em>aggregate</em> metrics have <strong>not</strong> been measured yet (see <a href="#status--what-is-left">Status</a>),
+  so its section is analysis + a single real example, not a batch score. Nothing here is fabricated.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive summary</h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Does the paid model beat the free model?</td>
+<td><strong>Yes, modestly, on answer quality — and it is ~2× faster and far more consistent.</strong> Retrieval quality is identical (same embeddings), so the gap is purely in generation.</td>
+</tr>
+<tr>
+<td>Is retrieval the bottleneck or generation?</td>
+<td><strong>Retrieval is strong (95.5% hit rate) and identical across free/paid.</strong> The differences are in how well each model <em>writes the answer</em> from the same retrieved context, and in latency.</td>
+</tr>
+<tr>
+<td>Does the ReAct agent help?</td>
+<td><strong>Expected to help specifically on multi-hop / retrieval-miss questions</strong> — the exact cases where the single-shot agent measurably fails today (e.g. q22). Verified on one worked example; full batch comparison is built and ready but pending API quota.</td>
+</tr>
+<tr>
+<td>What does ReAct cost?</td>
+<td><strong>~4× more LLM calls and multiple retrievals per question</strong> (measured: 4 LLM calls / 3 searches on the worked example vs. a fixed 1 / 1 for single-shot). It is a quality-for-cost trade.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-setup-methodology">2. Setup &amp; methodology</h2>
+<ul>
+<li><strong>Corpus / retrieval (held constant across every run):</strong> ChromaDB vector store, local
+  <code>all-MiniLM-L6-v2</code> embeddings, hybrid dense + BM25 fusion, cross-encoder reranking
+  (<code>ms-marco-MiniLM-L-6-v2</code>). Keeping retrieval identical means any free-vs-paid or
+  single-vs-ReAct difference is attributable to the <strong>model / orchestration</strong>, not to retrieval.</li>
+<li><strong>Test set:</strong> 22 graded questions with gold source documents and reference answers
+  (later extended to 28 with 6 purpose-built multi-hop questions — see Part B).</li>
+<li><strong>Metrics:</strong></li>
+<li><em>Retrieval:</em> hit rate (all gold docs retrieved), Mean Reciprocal Rank (MRR).</li>
+<li><em>Answer quality:</em> keyword coverage, ROUGE-L (lexical overlap), BERTScore F1 (semantic
+    overlap), and an LLM-as-judge correctness score (1–5).</li>
+<li><em>Operational:</em> end-to-end latency; and for the agent, <strong>cost telemetry</strong> (LLM calls and
+    searches per question).</li>
+<li><strong>Free tier</strong> = chat via an OpenRouter free model + local embeddings (no API billing).
+  <strong>Paid tier</strong> = a hosted commercial chat model. (The result files do not record the exact
+  model strings; they are compared by <em>tier</em>.)</li>
+</ul>
+<hr />
+<h2 id="3-part-a-free-vs-paid-measured-22-questions">3. Part A — Free vs. Paid (✅ Measured, 22 questions)</h2>
+<h3 id="31-headline-numbers">3.1 Headline numbers</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Free</th>
+<th>Paid</th>
+<th>Winner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retrieval hit rate</td>
+<td><strong>95.5%</strong></td>
+<td><strong>95.5%</strong></td>
+<td>tie (same retrieval)</td>
+</tr>
+<tr>
+<td>Mean Reciprocal Rank</td>
+<td><strong>0.818</strong></td>
+<td><strong>0.818</strong></td>
+<td>tie (same retrieval)</td>
+</tr>
+<tr>
+<td>Answer keyword coverage</td>
+<td>62.9%</td>
+<td><strong>67.2%</strong></td>
+<td>paid</td>
+</tr>
+<tr>
+<td>ROUGE-L</td>
+<td>0.433</td>
+<td><strong>0.499</strong></td>
+<td>paid</td>
+</tr>
+<tr>
+<td>BERTScore F1</td>
+<td>0.833</td>
+<td><strong>0.871</strong></td>
+<td>paid</td>
+</tr>
+<tr>
+<td>LLM judge (1–5)</td>
+<td>4.00</td>
+<td><strong>4.18</strong></td>
+<td>paid</td>
+</tr>
+<tr>
+<td>Avg latency</td>
+<td>7.30s</td>
+<td><strong>3.51s</strong></td>
+<td><strong>paid (2.1× faster)</strong></td>
+</tr>
+<tr>
+<td>Confidence dist.</td>
+<td>22× High</td>
+<td>22× High</td>
+<td>tie</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-what-the-numbers-say">3.2 What the numbers say</h3>
+<ol>
+<li>
+<p><strong>Retrieval is not the differentiator.</strong> Hit rate and MRR are <em>identical</em> to three decimals
+   because both tiers use the same local embeddings and reranker. If we want to improve
+   retrieval, changing the chat model is the wrong lever — that work lives in chunking/embeddings/reranking.</p>
+</li>
+<li>
+<p><strong>Paid wins on generation quality, but the margin is modest.</strong> Across ROUGE-L (+0.066),
+   BERTScore F1 (+0.038) and LLM-judge (+0.18 / 5), the paid model produces answers that align
+   better with the reference text. The free model is <strong>not far behind</strong> and clears a 4/5 average —
+   good enough for many internal use cases.</p>
+</li>
+<li>
+<p><strong>The biggest, most decision-relevant gap is latency and consistency.</strong> Paid averaged <strong>3.51s</strong>
+   vs the free tier's <strong>7.30s</strong>, and the free tier was <em>spiky</em> — several questions took 11–26s
+   (q1 26s, q7 19.5s, q9 14.2s, q15 14.2s, q17 11.6s), whereas paid stayed ~1.5–2.5s almost
+   everywhere. For an interactive assistant, that tail latency is felt by users more than a 0.18
+   judge-point difference.</p>
+</li>
+</ol>
+<h3 id="33-concrete-examples-from-the-measured-runs">3.3 Concrete examples (from the measured runs)</h3>
+<ul>
+<li><strong>q22 — "If I quit, do I get paid for unused vacation days?"</strong> The <strong>only retrieval miss</strong> for
+  <em>both</em> tiers (hit = False). Free scored judge <strong>1/5</strong>; paid scored <strong>4/5</strong> on the <em>same</em> missed
+  context — i.e. the paid model degraded more gracefully (hedged / reasoned) when the evidence
+  wasn't retrieved. <strong>This is the signature case for the ReAct agent</strong> (Part B): a single retrieval
+  pass missed the document, and neither single-shot agent could recover because neither can search
+  again.</li>
+<li><strong>q15 — free keyword coverage 0.0 but judge 5/5.</strong> A reminder that keyword coverage is a crude
+  proxy; the free answer was judged fully correct while using different wording. Trust the
+  judge/BERTScore over raw keyword coverage for quality claims.</li>
+<li><strong>q7 &amp; q1</strong> — the two largest paid-over-free judge gains (+1 and +2), both also cases where the
+  free model was slow (19.5s, 26s). Paid was both better <em>and</em> faster here.</li>
+</ul>
+<p><strong>Takeaway for the team:</strong> Free is a credible, zero-cost baseline (4/5 quality, identical
+retrieval). Paid buys a modest quality bump and — more importantly — <strong>halved, far steadier
+latency</strong>. Choose paid where interactive responsiveness matters; free is fine for batch/internal
+or cost-sensitive use.</p>
+<hr />
+<h2 id="4-part-b-react-agent-vs-single-shot-agent">4. Part B — ReAct agent vs. single-shot agent</h2>
+<h3 id="41-the-architectural-difference-design">4.1 The architectural difference (🔷 Design)</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Single-shot (existing)</strong></th>
+<th><strong>ReAct agent (new)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retrieval</td>
+<td>Exactly <strong>one</strong> retrieval, fixed top-k</td>
+<td><strong>Multiple</strong> retrievals; can reformulate the query</td>
+</tr>
+<tr>
+<td>Reasoning</td>
+<td>One LLM call: context → answer</td>
+<td>Thought → Action → Observation loop (up to 5 steps)</td>
+</tr>
+<tr>
+<td>Multi-doc questions</td>
+<td>Limited to what one top-k pass returns</td>
+<td>Can gather each sub-topic in separate searches</td>
+</tr>
+<tr>
+<td>Recovery from a bad first search</td>
+<td><strong>None</strong> — answers from whatever came back</td>
+<td>Can notice a weak result and <strong>search again</strong></td>
+</tr>
+<tr>
+<td>Cost per question</td>
+<td>Fixed: <strong>1 search, 1 LLM call</strong></td>
+<td>Variable: <strong>several searches + LLM calls</strong></td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td>Confidently answers from wrong/partial context</td>
+<td>Higher latency &amp; token cost</td>
+</tr>
+</tbody>
+</table>
+<p>The single-shot agent's structural weakness is visible in the measured data: <strong>q22 failed because
+one retrieval pass missed the document and there was no second chance.</strong> The ReAct agent is
+designed precisely to convert that class of failure into a success by reformulating and searching
+again.</p>
+<h3 id="42-verified-worked-example-real-single-question">4.2 Verified worked example (✅ Real, single question)</h3>
+<p>We ran the ReAct agent end-to-end on a deliberately multi-hop question:</p>
+<blockquote>
+<p><em>"What is the password rotation requirement and how did it change between policy versions?"</em></p>
+</blockquote>
+<p><strong>Result (actually executed):</strong>
+- <strong>3 searches / 4 LLM calls / 4 steps.</strong>
+- It searched for the policy, then <strong>reformulated</strong> to find the specific "90-day" rule, then
+  searched again for the newer version.
+- Final answer (verbatim): <em>"In version 1.0 … passwords were required to be rotated every 90 days
+  [S6]. In version 2.0 … the mandatory 90-day password rotation requirement was removed and
+  replaced by continuous MFA verification [S4]. Employees should disregard the 90-day rotation
+  requirement from the 2023 policy as version 2.0 is authoritative [S3]."</em></p>
+<p>This is exactly the behaviour the single-shot agent cannot produce: it <strong>noticed a version
+conflict, gathered evidence from multiple documents across searches, preferred the newer version,
+and cited its sources.</strong> A single top-k pass would likely surface one version and answer from it.</p>
+<h3 id="43-expected-benefits-the-cost-trade-off-design-measured-cost">4.3 Expected benefits &amp; the cost trade-off (🔷 Design + measured cost)</h3>
+<ul>
+<li><strong>Where ReAct should win:</strong> multi-hop questions (answer needs 2+ documents), questions where the
+  first search is weak, and version-conflict / "compare A and B" questions. We added <strong>6 such
+  questions (q23–q28)</strong> to the test set specifically to expose this — e.g. password policy v1↔v2,
+  vendor onboarding↔offboarding, benefits + leave.</li>
+<li><strong>Where single-shot should stay competitive:</strong> simple, single-document factual lookups (the bulk
+  of q1–q22), where a second search adds latency and cost for no quality gain.</li>
+<li><strong>The cost, measured on the worked example:</strong> ReAct used <strong>4 LLM calls and 3 searches</strong> for one
+  answer, versus a fixed <strong>1 and 1</strong> for single-shot. Expect roughly <strong>3–5× the LLM cost and
+  latency per question.</strong> The harness records <code>num_llm_calls</code> and <code>num_searches</code> per question so
+  this trade-off is quantified, not guessed.</li>
+</ul>
+<h3 id="44-what-is-not-yet-measured">4.4 What is <em>not</em> yet measured</h3>
+<p>We do <strong>not</strong> yet have aggregate ReAct metrics (judge/ROUGE/recall over all 28 questions). The
+run was blocked by external API quota limits, not by the code. <strong>The evaluation harness, the ReAct
+agent, the multi-hop test questions, and the side-by-side dashboard are all built and verified</strong> —
+only the batch execution is pending credit/quota (see below).</p>
+<h3 id="45-case-study-q22-the-retrieval-miss-question-mechanism-measured-locally">4.5 Case study — q22, the retrieval-miss question (✅ mechanism measured locally)</h3>
+<p>q22 is the single most useful example we have, because the single-shot agent <strong>measurably failed</strong>
+it and we can show — with real retrieval, no LLM/API needed — exactly how ReAct recovers it.</p>
+<blockquote>
+<p><strong>q22:</strong> <em>"If I quit my job, do I get paid for the vacation days I didn't use?"</em>
+<strong>Gold document:</strong> <code>HR_Leave_Policy.pdf</code> · <strong>Gold answer:</strong> unused annual leave is encashed on
+resignation (up to a 10-day cap) at last drawn basic salary.</p>
+</blockquote>
+<p><strong>Root cause of the failure — a vocabulary mismatch:</strong> the user asks in colloquial terms
+("quit / vacation days / paid for"); the policy is written in formal terms
+("resignation / annual leave / encashment"). The single-shot agent is locked to the user's raw
+phrasing for its one and only search, so it retrieves the wrong document and cannot recover.</p>
+<h4 id="step-by-step-single-shot-vs-react">Step-by-step: single-shot vs. ReAct</h4>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Single-shot (existing) — ✅ measured</th>
+<th>ReAct agent — ✅ retrieval measured, ⚠️ generation not run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. First search (user's raw wording)</td>
+<td>4 chunks, <strong>all <code>Global_Employee_Handbook.pdf</code></strong> (wrong doc)</td>
+<td>Same weak first result</td>
+</tr>
+<tr>
+<td>2. React to a weak result</td>
+<td>❌ No recourse — must answer from what it has</td>
+<td>✅ Reformulate toward policy vocabulary, search again</td>
+</tr>
+<tr>
+<td>3. Second search</td>
+<td>— (impossible by design)</td>
+<td>✅ Finds <code>HR_Leave_Policy.pdf</code></td>
+</tr>
+<tr>
+<td>4. Evidence handed to the model</td>
+<td>Wrong doc → <em>"excerpts don't cover this"</em></td>
+<td><strong>Exact "Unused Leave Encashment" clause</strong></td>
+</tr>
+<tr>
+<td>5. Outcome</td>
+<td>Retrieval <strong>MISS</strong>, LLM judge <strong>1 / 5</strong></td>
+<td>Retrieval <strong>HIT</strong> (correct answer now available)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="retrieval-evidence-original-query-vs-react-style-reformulations">Retrieval evidence — original query vs. ReAct-style reformulations</h4>
+<p>Each row below is a real <code>retrieve_and_rerank</code> call against the live vector store (local embeddings +
+BM25 + cross-encoder; no API):</p>
+<table>
+<thead>
+<tr>
+<th>Query</th>
+<th>Gold <code>HR_Leave_Policy.pdf</code> retrieved?</th>
+<th>Rank</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"If I quit my job, do I get paid for the vacation days I didn't use?"</code> (single-shot's query)</td>
+<td>❌ <strong>MISS</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>"unused annual leave encashment on resignation"</code></td>
+<td>✅ Hit</td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td><code>"vacation payout when leaving the company accrued leave"</code></td>
+<td>✅ Hit</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>"leave encashment last drawn salary carry-forward"</code></td>
+<td>✅ Hit</td>
+<td><strong>1</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The recovered chunk (the one single-shot never saw) contains the answer almost verbatim:</p>
+<blockquote>
+<p><em>"Upon resignation or termination, employees are entitled to encashment of unused annual leave
+(up to the carry-forward cap of 10 days) at their last drawn basic salary rate. Sick leave and
+casual leave are not eligible for encashment."</em></p>
+</blockquote>
+<h4 id="what-this-proves-and-its-one-limit">What this proves — and its one limit</h4>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single-shot missed the doc and scored 1/5 on q22</td>
+<td>✅ Measured (prior run)</td>
+</tr>
+<tr>
+<td>The miss is a reformulation problem, fully recoverable</td>
+<td>✅ Measured (all 3 reformulations hit; 2 at rank 1)</td>
+</tr>
+<tr>
+<td>The recovered document contains the correct answer</td>
+<td>✅ Measured (chunk text above)</td>
+</tr>
+<tr>
+<td>ReAct's final <em>generated</em> answer + judge score on q22</td>
+<td>⚠️ Not run (no API quota)</td>
+</tr>
+</tbody>
+</table>
+<p>The unmeasured link is only the final generation. But the failure was in <strong>retrieval, not
+generation</strong> — and note the paid model already scored <strong>4/5 on q22 even with the wrong document</strong>.
+Given the <em>right</em> document, a correct, cited answer is the expected result. This is the clearest
+concrete illustration of when the extra LLM-call cost of ReAct pays for itself.</p>
+<hr />
+<h2 id="5-status-what-is-left">5. Status — what is left</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReAct agent (<code>rag/react_agent.py</code>), text-protocol tool loop</td>
+<td>✅ built, verified on a live multi-hop question</td>
+</tr>
+<tr>
+<td>Evaluation harness with <code>--strategy single|react</code>, recall + cost telemetry</td>
+<td>✅ built</td>
+</tr>
+<tr>
+<td>6 multi-hop test questions (q23–q28)</td>
+<td>✅ added</td>
+</tr>
+<tr>
+<td>Dashboard "Single vs ReAct" comparison tab</td>
+<td>✅ built</td>
+</tr>
+<tr>
+<td>Free vs Paid measured comparison</td>
+<td>✅ complete (Part A)</td>
+</tr>
+<tr>
+<td><strong>ReAct aggregate run over 28 questions</strong></td>
+<td>⏳ <strong>pending API quota</strong> — reruns in one command once available</td>
+</tr>
+<tr>
+<td>Known pre-existing bug: <code>rag/generator.py:105</code> <code>NameError</code> in the org-clarification path</td>
+<td>⚠️ open, untouched</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-the-aggregate-react-run-is-pending">Why the aggregate ReAct run is pending</h3>
+<p>The free OpenRouter tier hit its <strong>account-wide daily request cap</strong> (~50/day without credits; our
+run needs ~200), and the model we were using was decommissioned mid-effort. A paid API key was
+wired in but its account had <strong>$0 API balance</strong> (a ChatGPT/Claude <em>subscription</em> does not fund the
+<em>API</em> — separate billing). No credit was added per instruction. <strong>To complete Part B</strong>, either add
+a small API balance (run cost &lt; $1) or raise the OpenRouter daily cap, then run:</p>
+<pre><code class="language-bash">python -m eval.evaluate --strategy single    # baseline over all 28 questions
+python -m eval.evaluate --strategy react      # ReAct over all 28 questions
+streamlit run eval/dashboard.py               # open the &quot;⚡ Single vs ReAct&quot; tab
+</code></pre>
+<p>The dashboard will then render the full quality-vs-cost table, a multi-hop-only breakdown, and
+per-question judge/latency/cost charts.</p>
+<hr />
+<h2 id="6-recommendations">6. Recommendations</h2>
+<ol>
+<li><strong>Model tier:</strong> Use <strong>paid for interactive/user-facing</strong> answering (2× faster, steadier, slightly
+   better quality); <strong>free is a solid zero-cost baseline</strong> for batch or cost-sensitive paths.
+   Retrieval quality is unaffected by this choice.</li>
+<li><strong>Agent strategy (once Part B is measured):</strong> Expect a <strong>hybrid</strong> to win — route simple factual
+   questions to the cheap single-shot path and reserve the ReAct agent for multi-hop / conflict /
+   "compare" questions. The <code>num_llm_calls</code> telemetry lets us price this routing precisely.</li>
+<li><strong>Retrieval is already the strong link</strong> (95.5% hit); the one measured miss (q22) argues for the
+   ReAct "search-again" capability rather than for more retrieval tuning.</li>
+<li><strong>Close the loop:</strong> finish the ReAct batch run (needs a few dollars of API credit or a raised
+   free cap) and fix the <code>generator.py:105</code> <code>NameError</code> before this goes near production.</li>
+</ol>
+<hr />
+<h2 id="appendix-a-how-the-two-approaches-work-detailed">Appendix A — How the two approaches work (detailed)</h2>
+<p><em>For teammates who aren't deep in RAG. This explains the mechanics, the step-by-step working
+difference, and precisely where and why ReAct outperforms the one-shot agent.</em></p>
+<h3 id="a1-one-shot-rag-the-pipeline">A.1 One-shot RAG — the pipeline</h3>
+<p>One-shot RAG (our existing <code>rag/generator.py</code>) does <strong>exactly one retrieval and one generation</strong>:</p>
+<pre><code>question
+  → embed the question
+  → retrieve top-k chunks (dense + BM25, then rerank)
+  → build one prompt: [retrieved context] + [question]
+  → ONE LLM call
+  → answer
+</code></pre>
+<ul>
+<li><strong>One search.</strong> The search query <em>is</em> the user's question, used verbatim.</li>
+<li><strong>One LLM call.</strong> The model sees only what that single search returned.</li>
+<li><strong>No feedback loop.</strong> If the search returned the wrong documents, the model cannot ask for
+  different ones — it must answer from what it has (or admit it can't).</li>
+</ul>
+<p>Fixed, predictable cost: <strong>1 search + 1 LLM call</strong> per question.</p>
+<h3 id="a2-react-agent-the-loop">A.2 ReAct agent — the loop</h3>
+<p>ReAct ("<strong>Rea</strong>son + <strong>Act</strong>", our <code>rag/react_agent.py</code>) turns answering into a loop where the model
+decides, at each step, whether to <strong>search again</strong> or <strong>finish</strong>:</p>
+<pre><code>question
+  → LOOP (up to MAX_STEPS = 5):
+       Thought:  the model reasons about what it still needs
+       Action:   search_knowledge_base  OR  finish
+       Action Input: { &quot;query&quot;: &quot;&lt;a query the MODEL writes&gt;&quot;, ... }
+       Observation: (we run the search and feed results back)
+  → finish → final answer with [S#] citations
+</code></pre>
+<p>Two capabilities the one-shot agent structurally lacks:
+1. <strong>It writes its own search queries</strong> — and can rewrite them if the first is weak.
+2. <strong>It can search multiple times</strong> — gathering evidence across documents before answering.</p>
+<p>Variable cost: <strong>N searches + N LLM calls</strong> (measured: ~3 searches / ~4 LLM calls on a multi-hop
+question). Bounded by <code>MAX_STEPS</code> so it can't loop forever.</p>
+<p>A real step emitted by the agent in this project:</p>
+<pre><code>Thought: Need to confirm v1.0 rotation requirement. Search for the &quot;90-day&quot; rule.
+Action: search_knowledge_base
+Action Input: {&quot;query&quot;: &quot;\&quot;90-day\&quot; password rotation&quot;, &quot;department&quot;: &quot;IT&quot;}
+</code></pre>
+<h3 id="a3-step-by-step-working-difference-same-question-both-agents">A.3 Step-by-step working difference (same question, both agents)</h3>
+<p>Using q22 — <em>"If I quit my job, do I get paid for the vacation days I didn't use?"</em></p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>One-shot RAG</th>
+<th>ReAct agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Interpret question</strong></td>
+<td>none — question goes straight to search</td>
+<td><em>Thought:</em> "This is about leave payout on exit; I should search the leave policy."</td>
+</tr>
+<tr>
+<td><strong>Search #1</strong></td>
+<td>user's literal words → <strong>wrong doc</strong> (<code>Global_Employee_Handbook</code>)</td>
+<td>same literal search → same weak result</td>
+</tr>
+<tr>
+<td><strong>Evaluate the result</strong></td>
+<td>❌ cannot — no step for this</td>
+<td><em>Thought:</em> "These chunks don't mention payout/encashment; reformulate."</td>
+</tr>
+<tr>
+<td><strong>Search #2</strong></td>
+<td>✗ impossible</td>
+<td><code>"unused annual leave encashment on resignation"</code> → <strong><code>HR_Leave_Policy.pdf</code>, rank 1</strong></td>
+</tr>
+<tr>
+<td><strong>Decide to answer</strong></td>
+<td>forced now</td>
+<td><em>Thought:</em> "I now have the encashment clause; finish."</td>
+</tr>
+<tr>
+<td><strong>Answer</strong></td>
+<td>"the excerpts don't cover this" → <strong>judge 1/5</strong></td>
+<td>grounded, cited answer from the correct clause (retrieval verified; generation pending quota)</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>1 search, 1 LLM call</td>
+<td>~2–3 searches, ~3–4 LLM calls</td>
+</tr>
+</tbody>
+</table>
+<p>The single decisive difference is the <strong>"Evaluate the result → reformulate"</strong> step, which one-shot
+simply does not have.</p>
+<h3 id="a4-how-and-why-react-is-better-and-where-it-isnt">A.4 How and why ReAct is better (and where it isn't)</h3>
+<p><strong>Where ReAct wins — and the reason:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Why one-shot struggles</th>
+<th>How ReAct fixes it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vocabulary mismatch</strong> (user's words ≠ document's words)</td>
+<td>Its only query is the user's phrasing</td>
+<td>Reformulates toward document terminology, then re-searches (<strong>q22, measured</strong>)</td>
+</tr>
+<tr>
+<td><strong>Multi-hop</strong> (answer needs 2+ documents)</td>
+<td>One top-k window may not hold all needed docs</td>
+<td>Searches for each sub-topic separately and combines</td>
+</tr>
+<tr>
+<td><strong>Version / conflict</strong> ("what changed between v1 and v2?")</td>
+<td>May retrieve only one version</td>
+<td>Searches for each version, compares, prefers newest (<strong>verified on the password-policy example</strong>)</td>
+</tr>
+<tr>
+<td><strong>Weak first retrieval</strong></td>
+<td>Answers from wrong context, often confidently</td>
+<td>Detects the weak result and tries again before answering</td>
+</tr>
+<tr>
+<td><strong>Under-specified questions</strong></td>
+<td>Guesses from a single pass</td>
+<td>Can narrow scope (department/org filters) across steps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The mechanism in one sentence:</strong> one-shot RAG bets everything on a single search of the user's
+raw wording; ReAct treats retrieval as an <em>interactive</em> process it can steer, so a bad first search
+becomes a recoverable step instead of a failed answer.</p>
+<p><strong>Where ReAct is <em>not</em> better (important for balance):</strong>
+- <strong>Simple factual lookups</strong> (most of q1–q22): the first search already succeeds, so ReAct's extra
+  steps add latency and ~3–5× LLM cost for <strong>no quality gain</strong>.
+- <strong>Cost &amp; speed:</strong> every extra step is another LLM call and more latency — meaningful at scale.
+- <strong>Model-dependence:</strong> ReAct only helps if the model reasons well about <em>when</em> to search again; a
+  weaker model can loop pointlessly or stop too early. (This is why the harness records
+  <code>num_llm_calls</code>/<code>num_searches</code> — so we can confirm the extra cost actually bought better answers.)</p>
+<p><strong>Practical conclusion:</strong> ReAct is not a replacement for one-shot RAG — it is a <strong>more capable,
+more expensive tool for a specific class of hard questions.</strong> The recommended deployment is a
+<strong>hybrid router</strong>: cheap one-shot for simple questions, ReAct for multi-hop / conflict / retrieval-miss
+questions. The per-question cost telemetry makes that routing measurable rather than guesswork.</p>
+<hr />
+<p><em>Generated from <code>eval/eval_results_free.json</code> and <code>eval/eval_results_paid.json</code> (measured), a live
+ReAct execution (multi-hop worked example), and live local <code>retrieve_and_rerank</code> calls for the q22
+case study (§4.5). ReAct aggregate metrics intentionally omitted until measured.</em></p>
+<hr><p class="doc-meta">Enterprise Knowledge Assistant · generated 2026-09-26 · print to PDF via your browser (Cmd/Ctrl+P).</p>
+</body></html>

@@ -7,7 +7,8 @@
       "21",
       "1.75"
     ],
-    "expected_answer": "Employees accrue 21 working days of annual leave per year (1.75 days per month). Unused annual leave carries forward up to 10 days; any excess lapses on March 31."
+    "expected_answer": "Employees accrue 21 working days of annual leave per year (1.75 days per month). Unused annual leave carries forward up to 10 days; any excess lapses on March 31.",
+    "category": "standard"
   },
   {
     "id": "q2",
@@ -17,7 +18,8 @@
       "restart",
       "GlobalProtect"
     ],
-    "expected_answer": "If the VPN keeps timing out (\"Connection Timed Out\" error), check the internet connection, confirm the gateway address (vpn.companyinternal.com), and restart the GlobalProtect client service. If the issue persists after two restarts, escalate to the IT Helpdesk (raise a P2 ticket or call ext. 4100)."
+    "expected_answer": "If the VPN keeps timing out (\"Connection Timed Out\" error), check the internet connection, confirm the gateway address (vpn.companyinternal.com), and restart the GlobalProtect client service. If the issue persists after two restarts, escalate to the IT Helpdesk (raise a P2 ticket or call ext. 4100).",
+    "category": "standard"
   },
   {
     "id": "q3",
@@ -27,7 +29,8 @@
       "10",
       "working days"
     ],
-    "expected_answer": "A male employee is entitled to 10 working days of paternity leave, which must be taken within three months of the child's birth."
+    "expected_answer": "A male employee is entitled to 10 working days of paternity leave, which must be taken within three months of the child's birth.",
+    "category": "standard"
   },
   {
     "id": "q4",
@@ -36,7 +39,8 @@
     "expected_answer_contains": [
       "IT"
     ],
-    "expected_answer": "IT is responsible for provisioning the new employee's laptop, corporate email, and Slack account, 3 days before the joining date, during the Pre-Joining (T-7 to T-1 days) stage."
+    "expected_answer": "IT is responsible for provisioning the new employee's laptop, corporate email, and Slack account, 3 days before the joining date, during the Pre-Joining (T-7 to T-1 days) stage.",
+    "category": "standard"
   },
   {
     "id": "q5",
@@ -46,7 +50,8 @@
       "resend",
       "SMS"
     ],
-    "expected_answer": "If the MFA push notification isn't received, ensure Okta Verify is installed and time-synced, try \"Resend push\", and if no prompt arrives within 2 minutes, use the backup SMS code."
+    "expected_answer": "If the MFA push notification isn't received, ensure Okta Verify is installed and time-synced, try \"Resend push\", and if no prompt arrives within 2 minutes, use the backup SMS code.",
+    "category": "standard"
   },
   {
     "id": "q6",
@@ -56,7 +61,8 @@
       "cannot",
       "no"
     ],
-    "expected_answer": "No, unused sick leave cannot be carried forward to the next year; only annual leave carries forward (up to 10 days). Sick leave and casual leave are not eligible for carry-forward."
+    "expected_answer": "No, unused sick leave cannot be carried forward to the next year; only annual leave carries forward (up to 10 days). Sick leave and casual leave are not eligible for carry-forward.",
+    "category": "standard"
   },
   {
     "id": "q7",
@@ -68,7 +74,8 @@
       "no information",
       "not contain"
     ],
-    "expected_answer": "The available documents do not contain a specific reimbursement policy for business class upgrades on international travel. The Travel and Expense Reimbursement Policy states Business Class requires VP+ approval for flights over 10 hours, but does not address a separate upgrade reimbursement -- check with Finance (expenses@company.com) for this specific scenario."
+    "expected_answer": "The available documents do not contain a specific reimbursement policy for business class upgrades on international travel. The Travel and Expense Reimbursement Policy states Business Class requires VP+ approval for flights over 10 hours, but does not address a separate upgrade reimbursement -- check with Finance (expenses@company.com) for this specific scenario.",
+    "category": "standard"
   },
   {
     "id": "q8",
@@ -79,7 +86,8 @@
       "no cap",
       "discretion"
     ],
-    "expected_answer": "Employees in eligible roles may work remotely up to 5 days per week at their discretion; there is no company-wide cap on remote days, though teams may set local in-person collaboration norms."
+    "expected_answer": "Employees in eligible roles may work remotely up to 5 days per week at their discretion; there is no company-wide cap on remote days, though teams may set local in-person collaboration norms.",
+    "category": "standard"
   },
   {
     "id": "q9",
@@ -89,7 +97,8 @@
       "all",
       "mandatory"
     ],
-    "expected_answer": "MFA (Okta Verify) is mandatory for all corporate accounts and applications, not just finance and HR systems, effective immediately under the current policy."
+    "expected_answer": "MFA (Okta Verify) is mandatory for all corporate accounts and applications, not just finance and HR systems, effective immediately under the current policy.",
+    "category": "standard"
   },
   {
     "id": "q10",
@@ -98,7 +107,8 @@
     "expected_answer_contains": [
       "12"
     ],
-    "expected_answer": "The minimum password length required is 12 characters (a passphrase)."
+    "expected_answer": "The minimum password length required is 12 characters (a passphrase).",
+    "category": "standard"
   },
   {
     "id": "q11",
@@ -109,7 +119,8 @@
       "on-call",
       "oncall"
     ],
-    "expected_answer": "Support should classify the ticket by severity and page the owning on-call per the routing table -- for a Dedicated tier issue this is typically SRE On-Call (Capacity) for capacity/autoscaling/GPU pool stability problems, via PagerDuty (pd-redwood-sre-capacity). If it meets Sev0/Sev1 criteria, Support should also start a Slack bridge in #incidents immediately."
+    "expected_answer": "Support should classify the ticket by severity and page the owning on-call per the routing table -- for a Dedicated tier issue this is typically SRE On-Call (Capacity) for capacity/autoscaling/GPU pool stability problems, via PagerDuty (pd-redwood-sre-capacity). If it meets Sev0/Sev1 criteria, Support should also start a Slack bridge in #incidents immediately.",
+    "category": "standard"
   },
   {
     "id": "q12",
@@ -119,7 +130,8 @@
       "40,000",
       "40000"
     ],
-    "expected_answer": "The Atlas release reached 40,000 active users within the first 30 days, against a target of 35,000 (114% of target)."
+    "expected_answer": "The Atlas release reached 40,000 active users within the first 30 days, against a target of 35,000 (114% of target).",
+    "category": "standard"
   },
   {
     "id": "q13",
@@ -129,7 +141,7 @@
       "82.6"
     ],
     "expected_answer": "Northwind's Annual Recurring Revenue (ARR) is $82.6M.",
-    "_reference_note": "UNVERIFIED: cites Q3_FY2026_Financial_Report.pdf, which does not exist in data/sample_docs (the budget deck references it but it was never ingested). This figure is taken from the test's own expected_answer_contains, not confirmed against a source document. Add the missing PDF or revise this question."
+    "category": "standard"
   },
   {
     "id": "q14",
@@ -139,7 +151,8 @@
       "150",
       "Engineering"
     ],
-    "expected_answer": "The recommendation is to reallocate $150K of the Q3 favorable variance from Engineering to Operations to cover the facilities maintenance overrun, pending CFO approval."
+    "expected_answer": "The recommendation is to reallocate $150K of the Q3 favorable variance from Engineering to Operations to cover the facilities maintenance overrun, pending CFO approval.",
+    "category": "standard"
   },
   {
     "id": "q15",
@@ -148,7 +161,8 @@
     "expected_answer_contains": [
       "7 years"
     ],
-    "expected_answer": "Security incident records must be retained for 7 years, per the compliance/audit requirement in the Records Retention Policy."
+    "expected_answer": "Security incident records must be retained for 7 years, per the compliance/audit requirement in the Records Retention Policy.",
+    "category": "standard"
   },
   {
     "id": "q16",
@@ -158,7 +172,8 @@
       "24",
       "28"
     ],
-    "expected_answer": "Per the Global Employee Handbook's country appendix, Germany's statutory minimum annual leave is 24 working days (company policy provides 28 days)."
+    "expected_answer": "Per the Global Employee Handbook's country appendix, Germany's statutory minimum annual leave is 24 working days (company policy provides 28 days).",
+    "category": "standard"
   },
   {
     "id": "q17",
@@ -169,7 +184,8 @@
       "no longer"
     ],
     "expected_answer": "No -- the mandatory 90-day password rotation requirement has been removed under the current (v2.0) Password and Account Security Policy and replaced by continuous MFA verification. The 90-day rotation rule from the 2023 (v1.0) policy is no longer in effect and should be disregarded.",
-    "_test_purpose": "Conflict resolution: v1 requires 90-day rotation, v2 explicitly removes it. Tests whether the model gives the CURRENT answer (no) or blends both versions ('some policies say yes, others say no')."
+    "_test_purpose": "Conflict resolution: v1 requires 90-day rotation, v2 explicitly removes it. Tests whether the model gives the CURRENT answer (no) or blends both versions ('some policies say yes, others say no').",
+    "category": "standard"
   },
   {
     "id": "q18",
@@ -182,7 +198,7 @@
     ],
     "expected_answer": "Northwind Labs' Q3 departmental spend was $4.2M and Northwind Analytics' consolidated Q3 revenue was $19.8M, giving a ratio of roughly 21% ($4.2M / $19.8M ~= 21%).",
     "_test_purpose": "Multi-hop arithmetic across two documents: Northwind Labs spend ($4.2M, budget deck) / Northwind Analytics revenue ($19.8M, financial report) = ~21%. Requires retrieving both AND correctly attributing which number came from which entity AND doing the division. Both orgs are named explicitly, so this should NOT trigger the disambiguation clarification -- it's testing arithmetic reasoning, not entity resolution.",
-    "_reference_note": "UNVERIFIED: the $19.8M Northwind Analytics revenue figure cites the same missing Q3_FY2026_Financial_Report.pdf as q13 (the $4.2M Northwind Labs figure IS confirmed, in Finance_Q3_Budget_Report.pptx). Add the missing PDF or revise this question."
+    "category": "standard"
   },
   {
     "id": "q19",
@@ -198,7 +214,8 @@
       "no specific amount"
     ],
     "expected_answer": "The Travel and Expense Reimbursement Policy does not specify a maximum dollar allowance for a business class flight upgrade. It states Business Class is permitted (with VP+ approval) for flights over 10 hours, but no specific dollar amount or \"upgrade allowance\" is defined anywhere in the policy.",
-    "_test_purpose": "Hallucination trap, not a real negative case: the policy DOES discuss business class (VP+ approval, flights over 10 hours) but never states a dollar 'upgrade allowance' -- a distinct concept the document doesn't define. Weaker models are tempted to invent a plausible-sounding number since the topic is genuinely covered, just not the specific fact asked about."
+    "_test_purpose": "Hallucination trap, not a real negative case: the policy DOES discuss business class (VP+ approval, flights over 10 hours) but never states a dollar 'upgrade allowance' -- a distinct concept the document doesn't define. Weaker models are tempted to invent a plausible-sounding number since the topic is genuinely covered, just not the specific fact asked about.",
+    "category": "standard"
   },
   {
     "id": "q20",
@@ -208,7 +225,8 @@
       "45"
     ],
     "expected_answer": "According to the Global Employee Handbook's country appendix, South Africa's standard work week is 45 hours.",
-    "_test_purpose": "Needle-in-haystack: the country appendix table has 15 structurally similar rows (leave days, notice periods, work weeks). Tests whether reranking + generation correctly pick South Africa's row specifically rather than an adjacent country's similar-looking numbers."
+    "_test_purpose": "Needle-in-haystack: the country appendix table has 15 structurally similar rows (leave days, notice periods, work weeks). Tests whether reranking + generation correctly pick South Africa's row specifically rather than an adjacent country's similar-looking numbers.",
+    "category": "standard"
   },
   {
     "id": "q21",
@@ -219,7 +237,8 @@
       "quotes"
     ],
     "expected_answer": "A $30,000 purchase falls in the $10,000-$50,000 tier of the Procurement SOP, which requires Finance approval (in addition to Manager + Department Head approval) and 2 competitive quotes.",
-    "_test_purpose": "Table-band precision: $30,000 falls in the $10,000-$50,000 tier, which requires correctly identifying the right threshold band from a table (not just pattern-matching the literal number '30,000', which doesn't appear anywhere in the source document) and reading off that row's requirements."
+    "_test_purpose": "Table-band precision: $30,000 falls in the $10,000-$50,000 tier, which requires correctly identifying the right threshold band from a table (not just pattern-matching the literal number '30,000', which doesn't appear anywhere in the source document) and reading off that row's requirements.",
+    "category": "standard"
   },
   {
     "id": "q22",
@@ -230,6 +249,104 @@
       "10"
     ],
     "expected_answer": "Yes -- upon resignation, unused annual leave is eligible for encashment (up to the 10-day carry-forward cap) at your last drawn basic salary rate, under the Unused Leave Encashment section. Sick and casual leave are not eligible for encashment.",
-    "_test_purpose": "Colloquial-to-formal bridging: 'quit' -> 'resignation', 'vacation days' -> 'annual leave', 'get paid for' -> 'encashment'. Tests whether generation correctly answers using the formally-worded 'Unused Leave Encashment' section despite the casual phrasing, rather than missing the connection."
+    "_test_purpose": "Colloquial-to-formal bridging: 'quit' -> 'resignation', 'vacation days' -> 'annual leave', 'get paid for' -> 'encashment'. Tests whether generation correctly answers using the formally-worded 'Unused Leave Encashment' section despite the casual phrasing, rather than missing the connection.",
+    "category": "standard"
+  },
+  {
+    "id": "q23",
+    "question": "How have the password length and rotation rules changed from the previous password policy to the current one, and is multi-factor authentication still limited to Finance and HR systems?",
+    "expected_sources": [
+      "IT_Password_Security_Policy_v1.pdf",
+      "IT_Password_Security_Policy_v2.pdf"
+    ],
+    "expected_answer_contains": [
+      "8",
+      "12",
+      "passphrase",
+      "90",
+      "MFA"
+    ],
+    "expected_answer": "Under the old policy (v1.0) passwords needed a minimum of 8 characters with at least one number and special character and had to be rotated every 90 days, and MFA was required only for Finance and HR systems (optional elsewhere). The current policy (v2.0, which supersedes v1.0) requires a passphrase of at least 12 characters, removes the 90-day rotation in favor of continuous MFA-backed verification (per NIST guidance), and makes MFA (Okta Verify) mandatory for all corporate accounts and applications, not just Finance and HR.",
+    "category": "multi_hop"
+  },
+  {
+    "id": "q24",
+    "question": "What financial screening and documentation must a new vendor complete before we can issue a purchase order, and what approvals are required for a $30,000 purchase?",
+    "expected_sources": [
+      "Finance_Procurement_SOP.pdf",
+      "Vendor_Onboarding_SOP.pdf"
+    ],
+    "expected_answer_contains": [
+      "W-9",
+      "sanctions",
+      "quotes",
+      "Finance"
+    ],
+    "expected_answer": "Before a PO can be issued, a new vendor must complete a W-9 (or equivalent) and Vendor Registration Form (tax ID and banking details), pass a basic vendor risk / financial-health and sanctions-list screening by Finance, and be entered into the vendor master file. A $30,000 purchase falls in the $10,000-$50,000 band, which requires Manager plus Department Head approval, Finance approval, a PO, and at least 2 competitive quotes.",
+    "category": "multi_hop"
+  },
+  {
+    "id": "q25",
+    "question": "As a new full-time employee, when do my health insurance and retirement benefits start, and how many days of annual and sick leave do I get in my first year?",
+    "expected_sources": [
+      "HR_Employee_Benefits_Guide.pdf",
+      "HR_Leave_Policy.pdf"
+    ],
+    "expected_answer_contains": [
+      "Day 1",
+      "90",
+      "21",
+      "12"
+    ],
+    "expected_answer": "Health insurance is effective from Day 1 (the company covers 80% of the employee premium, 50% for dependents), while the retirement plan can be enrolled after 90 days with a 100% company match up to 4% of base salary. For leave, full-time employees accrue 21 working days of annual leave per year (1.75/month) and 12 days of sick leave per year.",
+    "category": "multi_hop"
+  },
+  {
+    "id": "q26",
+    "question": "I just joined and will work fully remotely. Am I eligible for remote work from day one, and how do I get VPN access set up?",
+    "expected_sources": [
+      "HR_Remote_Work_Policy_v2.docx",
+      "IT_VPN_Support_Guide.docx"
+    ],
+    "expected_answer_contains": [
+      "first day",
+      "VPN",
+      "manager",
+      "business day"
+    ],
+    "expected_answer": "Yes - under the current Remote Work Policy all employees are eligible for remote work from their first day of employment unless their role is designated on-site required, and eligible roles may work fully remotely up to 5 days per week. To get VPN access, submit a request via the IT Service Portal under 'Network Access > VPN Request'; it requires your manager's approval and provisioning typically takes about 1 business day.",
+    "category": "multi_hop"
+  },
+  {
+    "id": "q27",
+    "question": "For a major security incident expected to last several hours, what immediate SEV1 actions does IT take, and at what point is the Crisis Management Team activated and who leads it?",
+    "expected_sources": [
+      "IT_Incident_Response_Runbook.docx",
+      "Ops_Business_Continuity_Plan.docx"
+    ],
+    "expected_answer_contains": [
+      "isolate",
+      "CISO",
+      "Crisis Management Team",
+      "COO"
+    ],
+    "expected_answer": "For a SEV1 incident, IT immediately isolates affected systems from the network (without powering off, to preserve forensic evidence), notifies the Security on-call lead and CISO, opens an incident channel/war room, and begins an incident log, with internal stakeholders notified within 30 minutes. Separately, the Business Continuity Plan's Crisis Management Team (CMT), led by the COO and including leads from IT, HR, Facilities and Communications, is activated for any disruption expected to last more than 4 hours.",
+    "category": "multi_hop"
+  },
+  {
+    "id": "q28",
+    "question": "What steps are required when we onboard a new vendor, and what must Operations do when that vendor is later offboarded?",
+    "expected_sources": [
+      "Vendor_Onboarding_SOP.pdf",
+      "Ops_Vendor_Management_SOP.docx"
+    ],
+    "expected_answer_contains": [
+      "registration",
+      "screening",
+      "30 days",
+      "revoke"
+    ],
+    "expected_answer": "Onboarding a new vendor requires completing the Vendor Registration Form (tax identification, banking details, and a Certificate of Quality Compliance for Manufacturing suppliers where applicable), followed by a Finance financial-health and sanctions-list screening before proceeding. When the vendor is offboarded, Operations must confirm data deletion/return within 30 days and revoke all associated access.",
+    "category": "multi_hop"
   }
 ]

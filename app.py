@@ -15,7 +15,8 @@ import streamlit as st
 import config
 from rag.vector_store import VectorStore
 from rag.retriever import retrieve_and_rerank
-from rag.generator import generate_answer
+from rag.generator import generate_answer, _is_refusal
+from rag.react_agent import answer_with_react, MAX_STEPS
 
 st.set_page_config(
         #page_title="Enterprise Knowledge Assistant", 
@@ -25,6 +26,83 @@ st.set_page_config(
         )
 
 CONFIDENCE_COLORS = {"High": "🟢", "Medium": "🟡", "Low": "🔴"}
+
+def needs_escalation(result: dict) -> bool:
+    """True when the cheap single-shot answer is weak enough to be worth
+    offering the (more expensive) ReAct agent: low confidence, nothing
+    retrieved, or an explicit 'couldn't find it' refusal."""
+    return (
+        result.get("confidence") == "Low"
+        or not result.get("chunks_used")
+        or _is_refusal(result.get("answer", ""))
+    )
+
+
+def run_pending_react(store):
+    """If the user accepted the ReAct offer, run the agent (multi-step) and
+    append its answer as a new assistant turn."""
+    question = st.session_state.pop("run_react_for", None)
+    if not question:
+        return
+    with st.spinner("🔷 ReAct agent — reasoning and searching across multiple steps…"):
+        t0 = time.time()
+        result = answer_with_react(question, store)
+        latency = round(time.time() - t0, 2)
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": result["answer"],
+        "citations": result.get("citations", []),
+        "confidence": result.get("confidence"),
+        "confidence_score": result.get("confidence_score"),
+        "strategy": "react",
+        "num_llm_calls": result.get("num_llm_calls"),
+        "num_searches": result.get("num_searches"),
+        "latency": latency,
+    })
+    try:
+        save_history(st.session_state.messages)
+    except Exception:
+        pass
+    st.rerun()
+
+
+def render_escalation_offer(store):
+    """Show the 'try ReAct?' panel under the latest answer, but only when that
+    answer was a single-shot result flagged as weak and not yet acted on."""
+    msgs = st.session_state.get("messages", [])
+    if not msgs:
+        return
+    last = msgs[-1]
+    if (last.get("role") != "assistant"
+            or last.get("strategy") != "single"
+            or not last.get("escalatable")
+            or last.get("escalation_declined")):
+        return
+    question = last.get("question")
+    if not question:
+        return
+
+    st.info(
+        "🤔 **That answer looks weak** — low confidence or no matching document. "
+        "I can escalate to the **ReAct agent**, which rewrites the query and searches the "
+        "knowledge base several times instead of once.\n\n"
+        f"**Cost of escalating:** up to ~{MAX_STEPS} reason+search steps "
+        f"(≈{MAX_STEPS} LLM calls and searches) versus the single call just used — slower and "
+        "higher token cost, but much stronger on multi-hop and vocabulary-mismatch questions."
+    )
+    c1, c2, _ = st.columns([1.2, 1, 3])
+    with c1:
+        if st.button("🔷 Yes, use ReAct agent", key="escalate_yes", type="primary"):
+            st.session_state.run_react_for = question
+            st.rerun()
+    with c2:
+        if st.button("No thanks", key="escalate_no"):
+            last["escalation_declined"] = True
+            try:
+                save_history(st.session_state.messages)
+            except Exception:
+                pass
+            st.rerun()
 
 
 st.html(
@@ -270,8 +348,14 @@ def main():
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-            if msg["role"] == "assistant" and msg.get("citations"):
-                render_citations(msg["citations"], msg.get("confidence"), msg.get("confidence_score"))
+            if msg["role"] == "assistant":
+                render_citations(msg.get("citations"), msg.get("confidence"), msg.get("confidence_score"))
+                render_answer_meta(msg)
+
+    # If the user accepted a ReAct escalation on the previous run, execute it now.
+    run_pending_react(store)
+    # Offer to escalate the latest answer to ReAct if it came back weak.
+    render_escalation_offer(store)
 
     question = st.chat_input("Ask about HR policy, IT support, onboarding, or any indexed document...")
     if question:
@@ -298,28 +382,52 @@ def main():
                 result = generate_answer(question, chunks, chat_history=history)
                 latency = round(time.time() - t0, 2)
 
-            st.markdown(result["answer"])
-            render_citations(result["citations"], result["confidence"], result["confidence_score"])
-            st.caption(f"⏱️ {latency}s · {len(chunks)} sources retrieved")
-
         st.session_state.messages.append({
             "role": "assistant",
             "content": result["answer"],
             "citations": result["citations"],
             "confidence": result["confidence"],
             "confidence_score": result["confidence_score"],
+            "strategy": "single",
+            "latency": latency,
+            "sources_count": len(chunks),
+            # Remember the question + whether this weak answer is worth escalating,
+            # so the ReAct offer can render (and re-run the agent) after the rerun.
+            "question": question,
+            "escalatable": needs_escalation(result),
         })
         # persist after assistant reply
         try:
             save_history(st.session_state.messages)
         except Exception:
             pass
+        st.rerun()
+
+
+def render_answer_meta(msg: dict):
+    """Small caption line under an assistant answer: which strategy produced it
+    and what it cost (single-shot = 1 call; ReAct = its measured calls/searches)."""
+    parts = []
+    if msg.get("strategy") == "react":
+        parts.append(
+            f"🔷 ReAct agent · {msg.get('num_llm_calls', '?')} LLM calls · "
+            f"{msg.get('num_searches', '?')} searches"
+        )
+    elif msg.get("strategy") == "single":
+        parts.append("⚡ Single-shot · 1 LLM call")
+    if msg.get("latency") is not None:
+        parts.append(f"⏱️ {msg['latency']}s")
+    if msg.get("sources_count") is not None:
+        parts.append(f"{msg['sources_count']} sources retrieved")
+    if parts:
+        st.caption(" · ".join(parts))
 
 
 def render_citations(citations, confidence, confidence_score):
     if confidence:
         icon = CONFIDENCE_COLORS.get(confidence, "⚪")
-        st.caption(f"{icon} **Confidence: {confidence}** ({confidence_score:.2f})")
+        score_txt = f" ({confidence_score:.2f})" if confidence_score is not None else ""
+        st.caption(f"{icon} **Confidence: {confidence}**{score_txt}")
     if citations:
         with st.expander(f"📎 Sources ({len(citations)})"):
             for c in citations:

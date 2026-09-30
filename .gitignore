@@ -6,3 +6,4 @@ venv/
 data/chroma_db/
 data/chat_archives.json
 data/chat_history.json
+*.log

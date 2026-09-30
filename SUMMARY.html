@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation Summary — Enterprise Knowledge Assistant</title><style>
+:root { --ink:#1a2233; --muted:#5b6472; --line:#e3e8ef; --accent:#2f5fe0;
+        --accent-soft:#eef3ff; --ok:#0f7b3f; --warn:#b26a00; --code:#0b1f4d; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+       color: var(--ink); line-height: 1.55; max-width: 880px; margin: 0 auto;
+       padding: 56px 48px 80px; font-size: 15px; background:#fff; }
+h1 { font-size: 30px; letter-spacing:-.5px; margin: 0 0 4px; padding-bottom: 14px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 21px; margin: 38px 0 12px; padding-top: 10px; color: var(--ink);
+     border-top: 1px solid var(--line); padding-top: 22px; }
+h3 { font-size: 16.5px; margin: 26px 0 8px; color: var(--accent); }
+h4 { font-size: 14px; margin: 18px 0 6px; color: var(--muted); text-transform: uppercase;
+     letter-spacing:.4px; }
+p, li { color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+strong { color: var(--ink); }
+code { background:#f4f6fa; color: var(--code); padding: 1.5px 5px; border-radius: 4px;
+       font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+pre { background:#0f1729; color:#e6ebff; padding: 14px 16px; border-radius: 8px;
+      overflow-x:auto; font-size: 12.5px; line-height:1.5; }
+pre code { background: none; color: inherit; padding: 0; }
+blockquote { margin: 12px 0; padding: 10px 16px; background: var(--accent-soft);
+             border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; color: var(--ink); }
+blockquote p { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0 20px; font-size: 13.5px;
+        box-shadow: 0 1px 0 var(--line); }
+th { background: var(--ink); color:#fff; text-align: left; padding: 9px 12px; font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background:#f8fafc; }
+hr { border:none; border-top: 1px solid var(--line); margin: 30px 0; }
+em { color: var(--muted); }
+.doc-meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+@media print {
+  body { padding: 0; font-size: 11.5pt; max-width: none; }
+  h2 { page-break-after: avoid; } table, pre, blockquote { page-break-inside: avoid; }
+  a { color: var(--ink); }
+}
+</style></head>
+<body><h1 id="evaluation-summary-free-vs-paid-and-react-vs-single-shot">Evaluation Summary — Free vs. Paid, and ReAct vs. Single-shot</h1>
+<p><em>One-page version. Full detail: <a href="./EVALUATION_REPORT.md"><code>EVALUATION_REPORT.md</code></a>. Date: 2026-09-26.</em></p>
+<h2 id="bottom-line">Bottom line</h2>
+<ul>
+<li><strong>Retrieval is strong and identical (95.5% hit) across free &amp; paid</strong> — the chat model is <em>not</em>
+  the lever for retrieval quality.</li>
+<li><strong>Paid model:</strong> modestly better answers, but <strong>~2× faster and far steadier</strong> — that's the real win.</li>
+<li><strong>ReAct agent:</strong> built and verified; expected to win specifically on <strong>multi-hop / retrieval-miss</strong>
+  questions. Demonstrated on q22 (below). Full batch scores pending API quota.</li>
+</ul>
+<h2 id="free-vs-paid-measured-22-questions">Free vs. Paid (✅ measured, 22 questions)</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Free</th>
+<th>Paid</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retrieval hit rate</td>
+<td>95.5%</td>
+<td>95.5%</td>
+<td>identical (same embeddings)</td>
+</tr>
+<tr>
+<td>Mean Reciprocal Rank</td>
+<td>0.818</td>
+<td>0.818</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>LLM judge (1–5)</td>
+<td>4.00</td>
+<td><strong>4.18</strong></td>
+<td>paid slightly better</td>
+</tr>
+<tr>
+<td>ROUGE-L / BERTScore F1</td>
+<td>0.433 / 0.833</td>
+<td><strong>0.499 / 0.871</strong></td>
+<td>paid slightly better</td>
+</tr>
+<tr>
+<td><strong>Avg latency</strong></td>
+<td>7.30s (spiky, up to 26s)</td>
+<td><strong>3.51s (steady)</strong></td>
+<td><strong>paid's biggest edge</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Read:</strong> free is a credible zero-cost baseline (4/5 quality). Paid buys a small quality bump and
+<strong>halved, far more consistent latency</strong> — worth it where responsiveness matters.</p>
+<h2 id="how-they-work-in-one-look">How they work (in one look)</h2>
+<ul>
+<li><strong>One-shot RAG:</strong> <code>question → 1 search → 1 LLM call → answer</code>. Searches with the user's exact
+  words; no way to react if that search is wrong.</li>
+<li><strong>ReAct agent:</strong> <code>question → [Thought → Action(search) → Observation]× → finish</code>. Writes and
+  <strong>rewrites its own search queries</strong>, can search several times, then answers. <strong>The one decisive
+  extra step is "the first result is weak → reformulate and search again"</strong> — which one-shot lacks.</li>
+</ul>
+<h2 id="react-vs-single-shot">ReAct vs. Single-shot</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Single-shot (existing)</th>
+<th>ReAct agent (new)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retrievals per question</td>
+<td>1 (fixed)</td>
+<td>multiple; can reformulate</td>
+</tr>
+<tr>
+<td>Recovers from a bad first search</td>
+<td>❌ no</td>
+<td>✅ yes</td>
+</tr>
+<tr>
+<td>Cost per question</td>
+<td>1 search / 1 LLM call</td>
+<td>~3 searches / ~4 LLM calls (measured on example)</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>simple factual lookups</td>
+<td>multi-hop, "compare versions", retrieval misses</td>
+</tr>
+</tbody>
+</table>
+<p><strong>q22 case study — "If I quit, do I get paid for unused vacation days?"</strong> (✅ mechanism measured)</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Single-shot</th>
+<th>ReAct mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First search (user's raw wording)</td>
+<td>wrong doc — <strong>MISS</strong></td>
+<td>same weak result</td>
+</tr>
+<tr>
+<td>React</td>
+<td>❌ answers "not covered" → <strong>judge 1/5</strong></td>
+<td>✅ reformulate → gold doc at <strong>rank 1</strong></td>
+</tr>
+<tr>
+<td>Answer available?</td>
+<td>no</td>
+<td><strong>yes — exact encashment clause</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Root cause: user says "quit/vacation/paid," policy says "resignation/annual leave/encashment."
+Single-shot is stuck with the user's phrasing; ReAct reformulates and recovers. <em>(Final ReAct
+generation not run — blocked on API quota — but the bottleneck was retrieval, and paid already
+scored 4/5 on q22 even with the wrong doc.)</em></p>
+<h2 id="recommendations">Recommendations</h2>
+<ol>
+<li><strong>Paid for interactive</strong> answering (faster, steadier); <strong>free for batch/cost-sensitive</strong>.</li>
+<li><strong>Hybrid agent routing:</strong> cheap single-shot for simple questions, ReAct for multi-hop/conflict —
+   priced precisely via the built-in per-question call telemetry.</li>
+<li><strong>To finish:</strong> add a few $ of API credit (run cost &lt; $1) or raise the free daily cap, then
+   <code>python -m eval.evaluate --strategy single|react</code>. Also fix the open <code>generator.py:105</code> bug.</li>
+</ol>
+<blockquote>
+<p>✅ measured = real harness numbers · ⚠️ not-yet-measured items are labelled as such; nothing is estimated as if measured.</p>
+</blockquote>
+<hr><p class="doc-meta">Enterprise Knowledge Assistant · generated 2026-09-26 · print to PDF via your browser (Cmd/Ctrl+P).</p>
+</body></html>

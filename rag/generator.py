@@ -47,6 +47,50 @@ def _confidence_label(top_score: float) -> str:
         return "Medium"
     return "Low"
 
+
+# --- Groundedness-aware confidence -------------------------------------------
+# Retrieval similarity alone is a poor confidence signal: the reranker can score
+# an irrelevant-but-topically-similar chunk highly, so a model that then refuses
+# ("the excerpts don't cover this") would still report High. We downgrade the
+# confidence based on what the ANSWER actually says, so a failed/hedged answer
+# no longer masquerades as High -- and the gap between a single-shot miss (Low)
+# and a deeper ReAct answer (Medium/High) becomes a visible reason to escalate.
+
+# The model couldn't answer at all from the retrieved context.
+_REFUSAL_MARKERS = (
+    "couldn't find", "could not find", "do not contain", "does not contain",
+    "don't contain", "not contain enough", "don't have enough", "do not have enough",
+    "no relevant information", "not enough information", "cannot answer",
+)
+# The model answered only partially / with explicit uncertainty.
+_HEDGE_MARKERS = (
+    "cannot confirm", "can't confirm", "not fully visible", "not fully shown",
+    "consult the complete", "consult the full", "for a definitive answer",
+    "not clear from", "unable to determine", "partially", "may not be complete",
+)
+
+
+def _is_refusal(answer: str) -> bool:
+    t = (answer or "").lower()
+    return any(m in t for m in _REFUSAL_MARKERS)
+
+
+def _is_hedge(answer: str) -> bool:
+    t = (answer or "").lower()
+    return any(m in t for m in _HEDGE_MARKERS)
+
+
+def assess_confidence(answer: str, top_score: float) -> tuple[str, float]:
+    """Return (label, score) reflecting answer groundedness, not just retrieval.
+    Refusal caps confidence into the Low band; a hedged/partial answer caps it
+    into the Medium band; otherwise the retrieval score stands."""
+    score = top_score
+    if _is_refusal(answer):
+        score = min(score, config.CONFIDENCE_MEDIUM - 0.05)  # force Low
+    elif _is_hedge(answer):
+        score = min(score, config.CONFIDENCE_HIGH - 0.05)    # cap at Medium
+    return _confidence_label(score), round(score, 3)
+
 def _distinct_organizations(chunks: list[dict]) -> list[str]:
     return sorted(set(c["metadata"].get("organization", "Unknown") for c in chunks))
 
@@ -102,11 +146,11 @@ def generate_answer(
                 f"Could you clarify which one you mean? (You can also use the sidebar filters to "
                 f"scope your question to one organization.)"
             ),
-            citations : [
+            "citations": [
                 {
                     "tag": f"S{i+1}",
                     "source": c["metadata"].get("title", c["metadata"].get("source")),
-                    "organization": c["metadata"].get("organization"),   # <-- ADD THIS LINE
+                    "organization": c["metadata"].get("organization"),
                     "department": c["metadata"].get("department"),
                     "page": c["metadata"].get("page"),
                     "version": c["metadata"].get("version"),
@@ -128,7 +172,7 @@ def generate_answer(
     user_prompt = f"CONTEXT EXCERPTS:\n\n{context}\n\nQUESTION: {question}"
     messages.append({"role": "user", "content": user_prompt})
 
-    answer_text = chat_complete(messages, temperature=0.2, max_tokens=800)
+    answer_text = chat_complete(messages, temperature=0.2, max_tokens=1500)
 
     top_score = max((c.get("final_score", c.get("score", 0)) for c in chunks), default=0)
     citations = [
@@ -143,11 +187,12 @@ def generate_answer(
         for i, c in enumerate(chunks)
     ]
 
+    confidence, confidence_score = assess_confidence(answer_text, top_score)
     return {
         "answer": answer_text,
         "citations": citations,
-        "confidence": _confidence_label(top_score),
-        "confidence_score": round(top_score, 3),
+        "confidence": confidence,
+        "confidence_score": confidence_score,
         "chunks_used": chunks,
     }
 

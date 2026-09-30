@@ -2,23 +2,31 @@
 Evaluation harness.
 
 Computes, per test question:
-  - Retrieval hit@k: was the expected source document among the retrieved chunks?
-  - MRR (mean reciprocal rank) of the expected source in the ranked results.
+  - Retrieval recall@k: what fraction of the expected source document(s) were
+    among the retrieved chunks. `retrieval_hit` is True only when ALL expected
+    docs were retrieved (so single- and multi-hop questions score consistently).
+  - MRR (mean reciprocal rank) of the first expected source in the results.
   - Answer keyword coverage: does the generated answer contain the expected
     key facts (a cheap proxy that doesn't need a reference answer at all).
   - ROUGE-1/2/L, BERTScore, and an LLM-as-judge score, each comparing the
-    generated answer against the gold `expected_answer` in the testset (see
-    eval/metrics.py for what each one actually measures).
-  - Confidence label returned, and end-to-end latency.
+    generated answer against the gold `expected_answer` in the testset.
+  - Confidence label returned, end-to-end latency, and -- for the agent --
+    the cost of the strategy (LLM calls and searches per question).
 
-Aggregates into summary metrics and writes eval_results.json, which the
-Streamlit eval dashboard (eval/dashboard.py) visualizes.
+Two answering strategies can be evaluated with identical metrics:
+  --strategy single  (default)  single retrieval + one LLM call (rag.generator)
+  --strategy react              ReAct agent, multi-step retrieval (rag.react_agent)
+
+Results are written to eval_results_{mode}.json (single) or
+eval_results_react_{mode}.json (react), which the eval dashboard visualizes.
 
 Run:
-    python -m eval.evaluate
+    python -m eval.evaluate                 # single-shot baseline
+    python -m eval.evaluate --strategy react
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -30,6 +38,7 @@ import config
 from rag.vector_store import VectorStore
 from rag.retriever import retrieve_and_rerank
 from rag.generator import generate_answer
+from rag.react_agent import answer_with_react
 from eval.metrics import compute_rouge, compute_bertscore_batch, llm_judge
 
 
@@ -38,24 +47,56 @@ def load_testset(path: str = config.EVAL_TESTSET_PATH) -> list[dict]:
         return json.load(f)
 
 
-def evaluate_question(item: dict, store: VectorStore) -> dict:
+def results_path(strategy: str) -> str:
+    if strategy == "react":
+        return str(Path(config.EVAL_RESULTS_PATH).with_name(f"eval_results_react_{config.RAG_MODE}.json"))
+    return config.EVAL_RESULTS_PATH
+
+
+def _gold_sources(item: dict) -> list[str] | None:
+    """Normalize the gold source(s) into a list, or None for refusal cases.
+    Supports both `expected_source` (str|null) and `expected_sources` (list)."""
+    if item.get("expected_sources"):
+        return list(item["expected_sources"])
+    src = item.get("expected_source")
+    return [src] if src else None
+
+
+def _run_strategy(question: str, store: VectorStore, strategy: str) -> dict:
+    """Return a generate_answer-shaped result dict for the chosen strategy.
+    Both paths populate `chunks_used`, so retrieval metrics read from one place.
+    Single-shot has a fixed cost of 1 search + 1 LLM call; the agent reports
+    its own counts."""
+    if strategy == "react":
+        return answer_with_react(question, store)
+    chunks = retrieve_and_rerank(question, store)
+    result = generate_answer(question, chunks)
+    result.setdefault("num_llm_calls", 1)
+    result.setdefault("num_searches", 1)
+    result.setdefault("steps", 1)
+    return result
+
+
+def evaluate_question(item: dict, store: VectorStore, strategy: str) -> dict:
     t0 = time.time()
-    chunks = retrieve_and_rerank(item["question"], store)
-    result = generate_answer(item["question"], chunks)
+    result = _run_strategy(item["question"], store, strategy)
     latency = time.time() - t0
 
-    retrieved_sources = [c["metadata"].get("source") for c in chunks]
-    expected = item.get("expected_source")
+    retrieved_sources = [c["metadata"].get("source") for c in result.get("chunks_used", [])]
+    gold = _gold_sources(item)
 
-    if expected is None:
-        # negative test case: correct behavior is NOT finding the doc / hedging
-        hit = expected not in retrieved_sources or True  # source absence isn't itself a failure
+    if gold is None:
+        # negative/refusal case: correct behavior is judged via answer coverage,
+        # not retrieval. Absence of a doc isn't itself a failure.
+        retrieval_hit = True
+        recall = None
         rank = None
-        retrieval_correct = True  # judged via answer coverage instead
     else:
-        hit = expected in retrieved_sources
-        rank = retrieved_sources.index(expected) + 1 if hit else None
-        retrieval_correct = hit
+        found = [g for g in gold if g in retrieved_sources]
+        recall = len(found) / len(gold)
+        retrieval_hit = (recall == 1.0)          # all required docs retrieved
+        ranks = [retrieved_sources.index(g) + 1 for g in found]
+        rank = min(ranks) if ranks else None      # rank of first gold doc
 
     mrr = (1 / rank) if rank else 0.0
 
@@ -71,9 +112,11 @@ def evaluate_question(item: dict, store: VectorStore) -> dict:
     return {
         "id": item["id"],
         "question": item["question"],
-        "expected_source": expected,
+        "category": item.get("category", "standard"),
+        "gold_sources": gold,
         "retrieved_sources": retrieved_sources,
-        "retrieval_hit": retrieval_correct,
+        "retrieval_hit": retrieval_hit,
+        "retrieval_recall": recall,
         "mrr": mrr,
         "answer": result["answer"],
         "reference_answer": reference_answer,
@@ -86,19 +129,29 @@ def evaluate_question(item: dict, store: VectorStore) -> dict:
         "llm_judge_score": judge["score"] if judge else None,
         "llm_judge_reasoning": judge["reasoning"] if judge else None,
         "latency_sec": round(latency, 2),
+        "num_llm_calls": result.get("num_llm_calls"),
+        "num_searches": result.get("num_searches"),
     }
 
 
-def run_evaluation(testset_path: str = config.EVAL_TESTSET_PATH, out_path: str = config.EVAL_RESULTS_PATH) -> dict:
+def run_evaluation(strategy: str = "single", testset_path: str = config.EVAL_TESTSET_PATH,
+                   out_path: str | None = None) -> dict:
+    out_path = out_path or results_path(strategy)
     store = VectorStore()
     if store.count() == 0:
         raise RuntimeError("Vector store is empty. Run ingestion first: python -m ingestion.ingest")
 
     testset = load_testset(testset_path)
-    results = [evaluate_question(item, store) for item in testset]
+    print(f"[INFO] Evaluating {len(testset)} questions with strategy='{strategy}' "
+          f"(mode={config.RAG_MODE}, model={config.OPENROUTER_CHAT_MODEL if config.RAG_MODE=='free' else config.CHAT_MODEL})")
+    results = []
+    for i, item in enumerate(testset, 1):
+        r = evaluate_question(item, store, strategy)
+        results.append(r)
+        print(f"  [{i}/{len(testset)}] {item['id']}: hit={r['retrieval_hit']} "
+              f"conf={r['confidence']} calls={r['num_llm_calls']} {r['latency_sec']}s")
 
-    # BERTScore loads a model, so compute it once for the whole batch rather
-    # than per-question.
+    # BERTScore loads a model, so compute it once for the whole batch.
     scoreable = [(i, r) for i, r in enumerate(results) if r["reference_answer"]]
     if scoreable:
         candidates = [r["answer"] for _, r in scoreable]
@@ -110,31 +163,42 @@ def run_evaluation(testset_path: str = config.EVAL_TESTSET_PATH, out_path: str =
         r.setdefault("bertscore", None)
 
     n = len(results)
+
+    def _avg(vals):
+        vals = [v for v in vals if v is not None]
+        return sum(vals) / len(vals) if vals else None
+
     hit_rate = sum(r["retrieval_hit"] for r in results) / n
+    avg_recall = _avg([r["retrieval_recall"] for r in results])
     avg_mrr = sum(r["mrr"] for r in results) / n
-    coverage_scores = [r["keyword_coverage"] for r in results if r["keyword_coverage"] is not None]
-    avg_keyword_coverage = sum(coverage_scores) / len(coverage_scores) if coverage_scores else None
+    avg_keyword_coverage = _avg([r["keyword_coverage"] for r in results])
     avg_latency = sum(r["latency_sec"] for r in results) / n
+    avg_llm_calls = _avg([r["num_llm_calls"] for r in results])
+    avg_searches = _avg([r["num_searches"] for r in results])
     confidence_dist = {}
     for r in results:
         confidence_dist[r["confidence"]] = confidence_dist.get(r["confidence"], 0) + 1
 
-    rouge_l_scores = [r["rouge"]["rougeL"] for r in results if r["rouge"]]
-    avg_rouge_l = sum(rouge_l_scores) / len(rouge_l_scores) if rouge_l_scores else None
-    bertscore_f1_scores = [r["bertscore"]["f1"] for r in results if r["bertscore"]]
-    avg_bertscore_f1 = sum(bertscore_f1_scores) / len(bertscore_f1_scores) if bertscore_f1_scores else None
-    judge_scores = [r["llm_judge_score"] for r in results if r["llm_judge_score"] is not None]
-    avg_llm_judge_score = sum(judge_scores) / len(judge_scores) if judge_scores else None
+    avg_rouge_l = _avg([r["rouge"]["rougeL"] for r in results if r["rouge"]])
+    avg_bertscore_f1 = _avg([r["bertscore"]["f1"] for r in results if r["bertscore"]])
+    avg_llm_judge_score = _avg([r["llm_judge_score"] for r in results])
+
+    def _rnd(v, d=3):
+        return round(v, d) if v is not None else None
 
     summary = {
+        "strategy": strategy,
         "num_questions": n,
-        "retrieval_hit_rate": round(hit_rate, 3),
-        "mean_reciprocal_rank": round(avg_mrr, 3),
-        "avg_answer_keyword_coverage": round(avg_keyword_coverage, 3) if avg_keyword_coverage is not None else None,
-        "avg_rouge_l": round(avg_rouge_l, 3) if avg_rouge_l is not None else None,
-        "avg_bertscore_f1": round(avg_bertscore_f1, 3) if avg_bertscore_f1 is not None else None,
-        "avg_llm_judge_score": round(avg_llm_judge_score, 2) if avg_llm_judge_score is not None else None,
-        "avg_latency_sec": round(avg_latency, 2),
+        "retrieval_hit_rate": _rnd(hit_rate),
+        "avg_retrieval_recall": _rnd(avg_recall),
+        "mean_reciprocal_rank": _rnd(avg_mrr),
+        "avg_answer_keyword_coverage": _rnd(avg_keyword_coverage),
+        "avg_rouge_l": _rnd(avg_rouge_l),
+        "avg_bertscore_f1": _rnd(avg_bertscore_f1),
+        "avg_llm_judge_score": _rnd(avg_llm_judge_score, 2),
+        "avg_latency_sec": _rnd(avg_latency, 2),
+        "avg_llm_calls_per_q": _rnd(avg_llm_calls, 2),
+        "avg_searches_per_q": _rnd(avg_searches, 2),
         "confidence_distribution": confidence_dist,
     }
 
@@ -148,4 +212,8 @@ def run_evaluation(testset_path: str = config.EVAL_TESTSET_PATH, out_path: str =
 
 
 if __name__ == "__main__":
-    run_evaluation()
+    parser = argparse.ArgumentParser(description="Evaluate a RAG answering strategy.")
+    parser.add_argument("--strategy", choices=["single", "react"], default="single",
+                        help="single = one retrieval + one LLM call; react = multi-step agent")
+    args = parser.parse_args()
+    run_evaluation(strategy=args.strategy)
